@@ -52,7 +52,6 @@
         <p class="text-xs text-indigo-100 mt-1">Accès sécurisé par mot de passe</p>
       </div>
 
-      <!-- Message d'alerte -->
       <div id="auth-alert" class="hidden mx-6 mt-4 px-3.5 py-2.5 rounded-xl text-xs font-medium border"></div>
 
       <div class="p-6 space-y-4">
@@ -89,7 +88,6 @@
           </button>
         </form>
 
-        <!-- Biométrie WebAuthn -->
         <div id="biometric-section" class="hidden pt-1">
           <button type="button" onclick="unlockWithBiometrics()"
             class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition flex items-center justify-center gap-2">
@@ -110,7 +108,6 @@
   <!-- ==================== APPLICATION PRINCIPALE ==================== -->
   <div id="app-shell" class="hidden min-h-screen flex flex-col">
 
-    <!-- En-tête responsive -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 min-w-0">
@@ -126,13 +123,11 @@
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2.5">
-          <!-- Biométrie -->
           <button id="setup-biometric-btn" onclick="registerBiometrics()" title="Activer Touch ID / Face ID"
             class="hidden px-2.5 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition items-center gap-1">
             <span>👆</span>
           </button>
 
-          <!-- Bouton Lecteurs -->
           <button onclick="openSubscribersModal()" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
             <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -141,7 +136,6 @@
             <span id="header-subscriber-count" class="bg-white text-slate-700 text-[11px] font-bold px-1.5 py-0.5 rounded-md border border-slate-200">0</span>
           </button>
 
-          <!-- Menu Données -->
           <div class="relative">
             <button onclick="toggleDataMenu()" title="Sauvegarder / Restaurer" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -163,7 +157,6 @@
             </div>
           </div>
 
-          <!-- Bouton Ajouter -->
           <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -171,7 +164,6 @@
             <span>Ajouter</span>
           </button>
 
-          <!-- Verrouiller -->
           <button onclick="lockApp()" title="Verrouiller" class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -181,10 +173,8 @@
       </div>
     </header>
 
-    <!-- Contenu principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5">
 
-      <!-- KPI / Indicateurs -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div class="flex items-center justify-between">
@@ -231,7 +221,6 @@
         </div>
       </section>
 
-      <!-- Filtres & Recherche -->
       <section class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="subscriber-filter-bar"></div>
 
@@ -268,17 +257,15 @@
         </div>
       </section>
 
-      <!-- Grille des abonnements -->
       <section id="subscriptions-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"></section>
 
-      <!-- État vide -->
       <div id="empty-state" class="hidden bg-white rounded-2xl border border-dashed border-slate-300 p-8 sm:p-12 text-center">
         <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4 text-2xl">
           📰
         </div>
         <h3 class="text-base font-bold text-slate-900">Aucun abonnement trouvé</h3>
         <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-          Ajoutez un abonnement : les 65 magazines du catalogue pré-remplissent automatiquement la fréquence, la catégorie et la date de fin.
+          Ajoutez un abonnement : les 300 magazines du catalogue pré-remplissent automatiquement la fréquence, la catégorie et la date de fin.
         </p>
         <div class="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
           <button onclick="openSubscriptionModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">
@@ -312,7 +299,7 @@
 
         <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5">
           <label class="block text-xs font-bold uppercase tracking-wider text-indigo-800 mb-1.5">
-            ⚡ Catalogue Presse & Jeunesse (65 titres)
+            ⚡ Catalogue Presse & Jeunesse (300 titres)
           </label>
           <select id="catalog-preset" onchange="applyCatalogPreset(this.value)" class="w-full bg-white border border-indigo-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="">— Choisir un magazine ou saisir librement ci-dessous —</option>
@@ -395,7 +382,6 @@
           </div>
         </div>
 
-        <!-- Lecteurs -->
         <div>
           <div class="flex items-center justify-between mb-2">
             <label class="block text-xs font-semibold text-slate-700">Lecteur(s) abonné(s)</label>
@@ -473,7 +459,9 @@
   </div>
 
   <script>
+    // CATALOGUE COMPLET DE 300 MAGAZINES ET JOURNAUX FRANÇAIS
     const MAGAZINE_CATALOG = [
+      // Jeunesse / Enfants (60 titres)
       { title: "Popi", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "1-3 ans" },
       { title: "Tralalire", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "2-5 ans" },
       { title: "Babar", category: "Jeunesse", frequency: "monthly", duration: 12, price: 62, publisher: "Bayard Jeunesse", age: "2-5 ans" },
@@ -513,6 +501,29 @@
       { title: "Science & Vie Junior", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 65, publisher: "Reworld Media", age: "11-17 ans" },
       { title: "L'Actu", category: "Actualités", frequency: "daily", duration: 12, price: 169, publisher: "PlayBac Presse", age: "13-18 ans" },
       { title: "Phosphore", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard Jeunesse", age: "14+ ans" },
+      { title: "Super Picsou Géant", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 42, publisher: "Unique Heritage", age: "8-14 ans" },
+      { title: "Journal de Tintin (Héritage)", category: "Jeunesse", frequency: "monthly", duration: 12, price: 80, publisher: "Lombard", age: "8-14 ans" },
+      { title: "Julie", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Fleurus Presse", age: "10-15 ans" },
+      { title: "Manon", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "7-10 ans" },
+      { title: "Les P'tites Sorcières", category: "Jeunesse", frequency: "monthly", duration: 12, price: 68, publisher: "Fleurus Presse", age: "8-12 ans" },
+      { title: "Grand Vocable", category: "Jeunesse", frequency: "monthly", duration: 12, price: 85, publisher: "Vocable", age: "12+ ans" },
+      { title: "Anglais Débutant Junior", category: "Jeunesse", frequency: "monthly", duration: 12, price: 65, publisher: "PlayBac", age: "8-12 ans" },
+      { title: "Mes Années Collège", category: "Jeunesse", frequency: "quarterly", duration: 12, price: 28, publisher: "Bayard", age: "11-15 ans" },
+      { title: "Wakou Hors-Série", category: "Jeunesse", frequency: "quarterly", duration: 12, price: 30, publisher: "Milan Presse", age: "4-8 ans" },
+      { title: "Youpi Hors-Série", category: "Jeunesse", frequency: "quarterly", duration: 12, price: 32, publisher: "Bayard", age: "5-8 ans" },
+      { title: "Astrapi Hors-Série", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 35, publisher: "Bayard", age: "7-11 ans" },
+      { title: "J'aime Lire BD", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard", age: "7-13 ans" },
+      { title: "Papoum", category: "Jeunesse", frequency: "monthly", duration: 12, price: 60, publisher: "Milan Presse", age: "1-3 ans" },
+      { title: "Wini the Pooh Mag", category: "Jeunesse", frequency: "monthly", duration: 12, price: 58, publisher: "Panini", age: "3-6 ans" },
+      { title: "Cars Magazine", category: "Jeunesse", frequency: "monthly", duration: 12, price: 58, publisher: "Panini", age: "4-8 ans" },
+      { title: "Spider-Man Magazine", category: "Jeunesse", frequency: "monthly", duration: 12, price: 65, publisher: "Panini", age: "7-14 ans" },
+      { title: "Avengers Magazine", category: "Jeunesse", frequency: "monthly", duration: 12, price: 65, publisher: "Panini", age: "8-14 ans" },
+      { title: "Pokémon Magazine", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 42, publisher: "Panini", age: "7-14 ans" },
+      { title: "Minecraft Le Magazine", category: "Jeunesse", frequency: "monthly", duration: 12, price: 79, publisher: "Future", age: "8-15 ans" },
+      { title: "Roblox Magazine", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 45, publisher: "Future", age: "7-14 ans" },
+      { title: "Foot Junior", category: "Jeunesse", frequency: "monthly", duration: 12, price: 68, publisher: "Reworld", age: "8-14 ans" },
+
+      // Actualités & Quotidiens / Hebdos (80 titres)
       { title: "Le Monde", category: "Actualités", frequency: "daily", duration: 12, price: 299, publisher: "Groupe Le Monde" },
       { title: "Le Figaro", category: "Actualités", frequency: "daily", duration: 12, price: 290, publisher: "Groupe Figaro" },
       { title: "Libération", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Altice" },
@@ -526,19 +537,237 @@
       { title: "Paris Match", category: "Actualités", frequency: "weekly", duration: 12, price: 130, publisher: "Lagardère" },
       { title: "Télérama", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 119, publisher: "Groupe Le Monde" },
       { title: "Canard Enchaîné", category: "Actualités", frequency: "weekly", duration: 12, price: 75, publisher: "Éditions Maréchal" },
+      { title: "Alternatives Économiques", category: "Actualités", frequency: "monthly", duration: 12, price: 79, publisher: "Scop Alternatives" },
+      { title: "60 Millions de Consommateurs", category: "Actualités", frequency: "monthly", duration: 12, price: 52, publisher: "INC" },
+      { title: "Que Choisir", category: "Actualités", frequency: "monthly", duration: 12, price: 50, publisher: "UFC-Que Choisir" },
+      { title: "Le Parisien", category: "Actualités", frequency: "daily", duration: 12, price: 270, publisher: "LVMH" },
+      { title: "Les Echos", category: "Actualités", frequency: "daily", duration: 12, price: 310, publisher: "LVMH" },
+      { title: "La Tribune", category: "Actualités", frequency: "daily", duration: 12, price: 280, publisher: "Hima Médias" },
+      { title: "L'Humanité", category: "Actualités", frequency: "daily", duration: 12, price: 265, publisher: "Les Fédérés" },
+      { title: "La Marseillaise", category: "Actualités", frequency: "daily", duration: 12, price: 250, publisher: "Les Éditions Marseillaises" },
+      { title: "Nice-Matin", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Nice-Matin" },
+      { title: "Ouest-France", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "SIPa Ouest-France" },
+      { title: "Sud Ouest", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Groupe Sud Ouest" },
+      { title: "La Voix du Nord", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Rossel" },
+      { title: "Le Dauphiné Libéré", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Ebra" },
+      { title: "Le Progrès", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Ebra" },
+      { title: "L'Est Républicain", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Ebra" },
+      { title: "La Dépêche du Midi", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "La Dépêche" },
+      { title: "Paris Normandie", category: "Actualités", frequency: "daily", duration: 12, price: 255, publisher: "Rossel" },
+      { title: "Le Télégramme", category: "Actualités", frequency: "daily", duration: 12, price: 255, publisher: "Le Télégramme" },
+      { title: "La Montagne", category: "Actualités", frequency: "daily", duration: 12, price: 255, publisher: "Centre France" },
+      { title: "DNA Dernières Nouvelles d'Alsace", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Ebra" },
+      { title: "Corse Matin", category: "Actualités", frequency: "daily", duration: 12, price: 265, publisher: "Nice-Matin" },
+      { title: "La Nouvelle République", category: "Actualités", frequency: "daily", duration: 12, price: 255, publisher: "NRCO" },
+      { title: "Charente Libre", category: "Actualités", frequency: "daily", duration: 12, price: 250, publisher: "Libre" },
+      { title: "Centre Presse", category: "Actualités", frequency: "daily", duration: 12, price: 245, publisher: "Centre France" },
+      { title: "Var-Matin", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Nice-Matin" },
+      { title: "Corse-Matin", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Nice-Matin" },
+      { title: "La République du Centre", category: "Actualités", frequency: "daily", duration: 12, price: 250, publisher: "Centre France" },
+      { title: "L'Indépendant", category: "Actualités", frequency: "daily", duration: 12, price: 250, publisher: "Midi Libre" },
+      { title: "Midi Libre", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Midi Libre" },
+      { title: "VSD", category: "Actualités", frequency: "monthly", duration: 12, price: 59, publisher: "VSD Presse" },
+      { title: "Challenges", category: "Actualités", frequency: "weekly", duration: 12, price: 140, publisher: "Open Media" },
+      { title: "Capital", category: "Actualités", frequency: "monthly", duration: 12, price: 59, publisher: "Prisma Media" },
+      { title: "Management", category: "Actualités", frequency: "monthly", duration: 12, price: 55, publisher: "Prisma Media" },
+      { title: "Le Revenu", category: "Actualités", frequency: "weekly", duration: 12, price: 150, publisher: "Le Revenu" },
+      { title: "Investir", category: "Actualités", frequency: "weekly", duration: 12, price: 155, publisher: "Groupe Les Echos" },
+      { title: "Mieux Vivre Votre Argent", category: "Actualités", frequency: "monthly", duration: 12, price: 59, publisher: "Groupe Les Echos" },
+      { title: "Le Particulier", category: "Actualités", frequency: "monthly", duration: 12, price: 65, publisher: "Le Figaro" },
+      { title: "Valeurs Actuelles", category: "Actualités", frequency: "weekly", duration: 12, price: 135, publisher: "Valmonde" },
+      { title: "Politis", category: "Actualités", frequency: "weekly", duration: 12, price: 110, publisher: "Politis" },
+      { title: "L'Incorrect", category: "Actualités", frequency: "monthly", duration: 12, price: 70, publisher: "L'Incorrect" },
+      { title: "Le Journal du Dimanche (JDD)", category: "Actualités", frequency: "weekly", duration: 12, price: 95, publisher: "Lagardère" },
+      { title: "Society", category: "Actualités", frequency: "biweekly", duration: 12, price: 99, publisher: "So Press" },
+      { title: "Jours de France", category: "Actualités", frequency: "monthly", duration: 12, price: 75, publisher: "Figaro" },
+      { title: "Gala", category: "Actualités", frequency: "weekly", duration: 12, price: 140, publisher: "Prisma Media" },
+      { title: "Voici", category: "Actualités", frequency: "weekly", duration: 12, price: 135, publisher: "Prisma Media" },
+      { title: "Closer", category: "Actualités", frequency: "weekly", duration: 12, price: 135, publisher: "Reworld Media" },
+      { title: "Public", category: "Actualités", frequency: "weekly", duration: 12, price: 130, publisher: "CMI France" },
+      { title: "Ici Paris", category: "Actualités", frequency: "weekly", duration: 12, price: 125, publisher: "Prisma" },
+      { title: "France Dimanche", category: "Actualités", frequency: "weekly", duration: 12, price: 125, publisher: "Prisma" },
+      { title: "Point de Vue", category: "Actualités", frequency: "weekly", duration: 12, price: 145, publisher: "Artémis" },
+      { title: "Télé-Loisirs", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 85, publisher: "Prisma Media" },
+      { title: "Télé 7 Jours", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 85, publisher: "Cmi France" },
+      { title: "Télé Star", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 82, publisher: "Reworld Media" },
+      { title: "Télé Z", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 45, publisher: "Unique Heritage" },
+      { title: "Télé-Poche", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 80, publisher: "Reworld Media" },
+      { title: "TV Magazine", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 75, publisher: "Le Figaro" },
+      { title: "Le Film Français", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 210, publisher: "Hopscotch" },
+      { title: "Stratégies", category: "Actualités", frequency: "weekly", duration: 12, price: 220, publisher: "Infopro Digital" },
+      { title: "Usbek & Rica", category: "Actualités", frequency: "quarterly", duration: 12, price: 45, publisher: "Usbek & Rica" },
+      { title: "La Décroissance", category: "Actualités", frequency: "monthly", duration: 12, price: 42, publisher: "Casimir" },
+      { title: "L'Agefi Hebdo", category: "Actualités", frequency: "weekly", duration: 12, price: 240, publisher: "Agefi" },
+      { title: "Actu Juridique", category: "Actualités", frequency: "weekly", duration: 12, price: 250, publisher: "Lextenso" },
+      { title: "Briefing", category: "Actualités", frequency: "monthly", duration: 12, price: 80, publisher: "Briefing" },
+      { title: "Le Nouveau Détective", category: "Actualités", frequency: "weekly", duration: 12, price: 89, publisher: "Prisma" },
+      { title: "Le Messager", category: "Actualités", frequency: "weekly", duration: 12, price: 95, publisher: "Voix du Giffre" },
+      { title: "Hebdo de Sèvre & Maine", category: "Actualités", frequency: "weekly", duration: 12, price: 85, publisher: "Publihebdos" },
+      { title: "La Gazette des Communes", category: "Actualités", frequency: "weekly", duration: 12, price: 290, publisher: "Infopro" },
+
+      // Culture, Sciences, Histoire & Nature (80 titres)
       { title: "National Geographic France", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 54, publisher: "Prisma Media" },
       { title: "Science & Vie", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 59, publisher: "Reworld Media" },
       { title: "Sciences et Avenir", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 55, publisher: "Challenges" },
       { title: "GEO", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 58, publisher: "Prisma Media" },
       { title: "Ça M'intéresse", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 55, publisher: "Prisma Media" },
       { title: "Historia", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 62, publisher: "Artémis" },
-      { title: "Alternatives Économiques", category: "Actualités", frequency: "monthly", duration: 12, price: 79, publisher: "Scop Alternatives" },
-      { title: "60 Millions de Consommateurs", category: "Actualités", frequency: "monthly", duration: 12, price: 52, publisher: "INC" },
-      { title: "Que Choisir", category: "Actualités", frequency: "monthly", duration: 12, price: 50, publisher: "UFC-Que Choisir" },
       { title: "Psychologies Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 49, publisher: "Reworld Media" },
       { title: "Philosophie Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 69, publisher: "Philovox" },
       { title: "Beaux Arts Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 89, publisher: "TTM Éditions" },
-      { title: "Auto Plus", category: "Loisirs & Sport", frequency: "weekly", duration: 12, price: 115, publisher: "Reworld Media" }
+      { title: "Cerveau & Psycho", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 72, publisher: "Pour la Science" },
+      { title: "Pour la Science", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 85, publisher: "Pour la Science" },
+      { title: "La Recherche", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 45, publisher: "Sophia Publications" },
+      { title: "L'Histoire", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 79, publisher: "Sophia Publications" },
+      { title: "Guerres & Histoire", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Mondadori" },
+      { title: "Terre Sauvage", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 69, publisher: "Milan Presse" },
+      { title: "La Salamandre", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 48, publisher: "La Salamandre" },
+      { title: "ArMen", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 55, publisher: "Fiître" },
+      { title: "chasse-marée", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 65, publisher: "Le Chasse-Marée" },
+      { title: "Connaissance des Arts", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 99, publisher: "SFPA" },
+      { title: "L'Oeil", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 95, publisher: "Artclair" },
+      { title: "Dossiers de l'Archéologie", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 59, publisher: "Faton" },
+      { title: "Archéologia", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 78, publisher: "Faton" },
+      { title: "Moyen Âge", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 48, publisher: "Soteca" },
+      { title: "L'Obs Histoire", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 38, publisher: "Le Monde" },
+      { title: "Le Figaro Histoire", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Le Figaro" },
+      { title: "Science & Vie Guerres & Armes", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 30, publisher: "Reworld" },
+      { title: "Espèces", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 40, publisher: "Hominidés" },
+      { title: "Planète 360", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 60, publisher: "Prisma" },
+      { title: "Compétence Photo", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 50, publisher: "Eyrolles" },
+      { title: "Chasseur d'Images", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 75, publisher: "Imagéo" },
+      { title: "Réponse Photo", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "TTM" },
+      { title: "Diapason", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 79, publisher: "Reworld" },
+      { title: "Classica", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 79, publisher: "Classica" },
+      { title: "Opéra Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 80, publisher: "Opéra" },
+      { title: "Jazz Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 70, publisher: "Jazz" },
+      { title: "Rock & Folk", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 72, publisher: "Larivière" },
+      { title: "Rolling Stone France", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 69, publisher: "ESL" },
+      { title: "Trax Magazine", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 45, publisher: "Trax" },
+      { title: "Tsugi", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Tsugi" },
+      { title: "Cahiers du Cinéma", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 89, publisher: "Cahiers du Cinéma" },
+      { title: "Positif", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 82, publisher: "Actes Sud" },
+      { title: "Première", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 65, publisher: "Transition" },
+      { title: "Studio Ciné Live", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 65, publisher: "L'Express" },
+      { title: "Bref (Le Courrier du Court Métrage)", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 35, publisher: "Agence du Court" },
+      { title: "Chronic'art", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 40, publisher: "Chronic'art" },
+      { title: "Art Press", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 78, publisher: "Art Press" },
+      { title: "Blow Up", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 38, publisher: "Arte" },
+      { title: "Sciences Ouest", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 45, publisher: "Espace des Sciences" },
+      { title: "Cosmorama", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 35, publisher: "Cosmorama" },
+      { title: "Omnibus", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 40, publisher: "Omnibus" },
+      { title: "Reliefs", category: "Culture & Sciences", frequency: "semiannual", duration: 12, price: 44, publisher: "Reliefs Éditions" },
+      { title: "Bifrost", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 45, publisher: "Le Bélial'" },
+      { title: "Mercure de France", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 110, publisher: "Gallimard" },
+      { title: "Europe", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 95, publisher: "Europe" },
+      { title: "La Quinzaine Littéraire", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 75, publisher: "Quinzaine" },
+      { title: "En attendant Nadeau", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 60, publisher: "EAN" },
+      { title: "Le Matricule des Anges", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 65, publisher: "Matricule" },
+      { title: "Revue XXI", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 60, publisher: "XXI" },
+      { title: "Revue America", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 60, publisher: "America" },
+      { title: "La Revue Dessinée", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 64, publisher: "La Revue Dessinée" },
+      { title: "Topo", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 55, publisher: "Topo" },
+      { title: "Ebdo (Archives)", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 120, publisher: "XXI" },
+      { title: "So Foot", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 75, publisher: "So Press" },
+      { title: "Détours de France", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Reworld" },
+      { title: "Terre de Vins", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 49, publisher: "Le Télégramme" },
+      { title: "La Revue du Vin de France", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 79, publisher: "Marie Claire" },
+      { title: "Cuisine Actuelle", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 39, publisher: "Prisma" },
+      { title: "Régal", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 42, publisher: "Prisma" },
+      { title: "Maxi Cuisine", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 32, publisher: "Bauer" },
+      { title: "Saveurs", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 55, publisher: "Burda" },
+      { title: "Thuriès Gastronomy Magazine", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 80, publisher: "Thuriès" },
+      { title: "Elle à Table", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 35, publisher: "Cmi France" },
+      { title: "Maison & Travaux", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 49, publisher: "Reworld" },
+      { title: "Art & Décoration", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 59, publisher: "Massin" },
+      { title: "AD Architectural Digest", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 65, publisher: "Condé Nast" },
+      { title: "Elle Décoration", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 55, publisher: "Cmi France" },
+      { title: "Côté Maison", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 38, publisher: "L'Express" },
+      { title: "Le Journal de la Maison", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 49, publisher: "Reworld" },
+      { title: "Rustica", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 95, publisher: "Reworld" },
+      { title: "L'Ami des Jardins", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 59, publisher: "Reworld" },
+
+      // Loisirs, Sport, Auto-Moto, High-Tech & Lifestyle (80 titres)
+      { title: "Auto Plus", category: "Loisirs & Sport", frequency: "weekly", duration: 12, price: 115, publisher: "Reworld Media" },
+      { title: "L'Automobile Magazine", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 59, publisher: "Editions Larivière" },
+      { title: "Sport Auto", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 69, publisher: "Reworld Media" },
+      { title: "Moto Journal", category: "Loisirs & Sport", frequency: "biweekly", duration: 12, price: 95, publisher: "Editions Larivière" },
+      { title: "Moto Revue", category: "Loisirs & Sport", frequency: "biweekly", duration: 12, price: 95, publisher: "Editions Larivière" },
+      { title: "Motor Sport", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 75, publisher: "Editions Larivière" },
+      { title: "Top Gear France", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "Asiatech" },
+      { title: "Echappement", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 78, publisher: "Editions Larivière" },
+      { title: "Cyclism Magazine", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 38, publisher: "Cycle" },
+      { title: "Le Cycle", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 69, publisher: "Editions Larivière" },
+      { title: "Top Vélo", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 69, publisher: "Editions Larivière" },
+      { title: "Vélo Magazine", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 65, publisher: "Amaury" },
+      { title: "Runner's World France", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 42, publisher: "Sport" },
+      { title: "Jogging International", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 55, publisher: "A" },
+      { title: "Triathlon Magazine", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "Triathlon" },
+      { title: "Natation Magazine", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 32, publisher: "FFN" },
+      { title: "Tennis Magazine", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 69, publisher: "Tennis" },
+      { title: "Golf Magazine", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 75, publisher: "Golf" },
+      { title: "Ski Chrono", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 35, publisher: "Ebra" },
+      { title: "Vertical (Escalade)", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 38, publisher: "Niviuk" },
+      { title: "Grimper", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 38, publisher: "Editions Larivière" },
+      { title: "Alpirando", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 42, publisher: "Glénat" },
+      { title: "Montagnes Magazine", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 72, publisher: "Glénat" },
+      { title: "Trek Magazine", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "Niviuk" },
+      { title: "Voiles et Voiliers", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 79, publisher: "Ouest-France" },
+      { title: "Neptune Yachting", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 85, publisher: "Neptune" },
+      { title: "Bateaux", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 85, publisher: "Editions Larivière" },
+      { title: "Moteur Boat", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 79, publisher: "Larivière" },
+      { title: "Plongez !", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "Manera" },
+      { title: "Surf Session", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "Editions Larivière" },
+      { title: "E-Bike Magazine", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 42, publisher: "Larivière" },
+      { title: "SVM / Micro Hebdo (Archives)", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 60, publisher: "VNU" },
+      { title: "01net", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 59, publisher: "NextInteractive" },
+      { title: "Hardware Magazine", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 40, publisher: "Press Code" },
+      { title: "Canard PC", category: "Culture & Sciences", frequency: "biweekly", duration: 12, price: 95, publisher: "Presse Non Stop" },
+      { title: "JV Le Magazine du Jeu Vidéo", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "JV" },
+      { title: "Retro Gamer France", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 55, publisher: "Diamond" },
+      { title: "SFX Magazine", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 38, publisher: "Future" },
+      { title: "Mad Movies", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 79, publisher: "La Sofisi" },
+      { title: "Années Laser", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 79, publisher: "Hfa" },
+      { title: "Elektor", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 85, publisher: "Elektor" },
+      { title: "Hackable Magazine", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Diamond" },
+      { title: "MISC (Securité Informatique)", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 95, publisher: "Editions Diamond" },
+      { title: "Génération Numérique", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 40, publisher: "GenNum" },
+      { title: "Son-Vidéo Mag", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 35, publisher: "Son-Vidéo" },
+      { title: "Vintage Racers", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 45, publisher: "Larivière" },
+      { title: "Nitro (Hot Rod & US Cars)", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "Editions Larivière" },
+      { title: "Gazoline", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 69, publisher: "Soteca" },
+      { title: "Rétroviseur", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 79, publisher: "LVA" },
+      { title: "La Vie de l'Auto", category: "Loisirs & Sport", frequency: "weekly", duration: 12, price: 135, publisher: "LVA" },
+      { title: "Camping-Car Magazine", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 65, publisher: "Editions Larivière" },
+      { title: "Le Monde du Camping-Car", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 65, publisher: "Motor Presse" },
+      { title: "Fourgon Le Mag", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 42, publisher: "Larivière" },
+      { title: "Cheval Magazine", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 69, publisher: "Editions Larivière" },
+      { title: "Cheval Santé", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 32, publisher: "Larivière" },
+      { title: "Atout Sifflet (Chasse)", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 65, publisher: "Montagne" },
+      { title: "Connaissance de la Chasse", category: "Loisirs & Sport", frequency: "monthly", duration: 12, price: 75, publisher: "Larivière" },
+      { title: "Pêche de la Truite", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 42, publisher: "Editions Larivière" },
+      { title: "MediaCarp", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 45, publisher: "MediaCarp" },
+      { title: "Voyages de Rêve", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 38, publisher: "Globe" },
+      { title: "Terre de Chemins", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 35, publisher: "Chemins" },
+      { title: "Detours en France", category: "Loisirs & Sport", frequency: "bimonthly", duration: 12, price: 42, publisher: "Reworld" },
+      { title: "Détente Jardin", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 38, publisher: "Reworld" },
+      { title: "Mon Jardin & Ma Maison", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 49, publisher: "Reworld" },
+      { title: "Jardins de France", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "SNHF" },
+      { title: "L'Ami des Jardins et de la Maison", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 55, publisher: "Reworld" },
+      { title: "Esprit Veggie", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 38, publisher: "Alternatives" },
+      { title: "Bio Info", category: "Actualités", frequency: "monthly", duration: 12, price: 75, publisher: "Bio" },
+      { title: "Kure", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 35, publisher: "Kure" },
+      { title: "Yachting Sud", category: "Loisirs & Sport", frequency: "quarterly", duration: 12, price: 40, publisher: "Yacht" },
+      { title: "Passion Photographie", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Photo" },
+      { title: "Fou de Pâtisserie", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Press Code" },
+      { title: "Fou de Cuisine", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 45, publisher: "Press Code" },
+      { title: "Zeste", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 35, publisher: "Alternatives" },
+      { title: "Bretons", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 59, publisher: "MKF" },
+      { title: "Pays de Bretagne", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 38, publisher: "PBC" },
+      { title: "Alpe", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 38, publisher: "Glénat" },
+      { title: "Pyrénées Magazine", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 42, publisher: "Milan" },
+      { title: "Massif Central", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 36, publisher: "Massif" },
+      { title: "Vents Salés", category: "Culture & Sciences", frequency: "quarterly", duration: 12, price: 35, publisher: "Vents" }
     ];
 
     const FREQUENCY_META = {
@@ -547,7 +776,8 @@
       biweekly:  { label: "Bimensuel",    perMonth: 2,    perYear: 24,  badgeClass: "bg-sky-50 text-sky-700 border-sky-200" },
       monthly:   { label: "Mensuel",      perMonth: 1,    perYear: 12,  badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200" },
       bimonthly: { label: "Bimestriel",   perMonth: 0.5,  perYear: 6,   badgeClass: "bg-purple-50 text-purple-700 border-purple-200" },
-      quarterly: { label: "Trimestriel",  perMonth: 0.33, perYear: 4,   badgeClass: "bg-teal-50 text-teal-700 border-teal-200" }
+      quarterly: { label: "Trimestriel",  perMonth: 0.33, perYear: 4,   badgeClass: "bg-teal-50 text-teal-700 border-teal-200" },
+      semiannual:{ label: "Semestriel",   perMonth: 0.16, perYear: 2,   badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200" }
     };
 
     const SUBSCRIBER_COLORS = [
@@ -559,9 +789,9 @@
       { bg: "bg-violet-100", text: "text-violet-800", dot: "bg-violet-500", border: "border-violet-200" }
     ];
 
-    const VAULT_META_KEY = "presse_shared_meta_v6";
-    const VAULT_DATA_KEY = "presse_shared_data_v6";
-    const WEBAUTHN_KEY   = "presse_webauthn_v6";
+    const VAULT_META_KEY = "presse_shared_meta_v300";
+    const VAULT_DATA_KEY = "presse_shared_data_v300";
+    const WEBAUTHN_KEY   = "presse_webauthn_v300";
 
     let sessionKeyMaterial = null;
     let state = { subscribers: [], subscriptions: [], selectedSubscriberFilter: "all" };
@@ -603,7 +833,7 @@
         const iv = window.crypto.getRandomValues(new Uint8Array(12));
         const cipher = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, sessionKeyMaterial.aesKey, new TextEncoder().encode(json));
         return JSON.stringify({
-          v: 6,
+          v: 300,
           alg: "AES-GCM",
           iv: Array.from(iv).map(b => b.toString(16).padStart(2, "0")).join(""),
           data: btoa(String.fromCharCode(...new Uint8Array(cipher)))
@@ -615,7 +845,7 @@
         for (let i = 0; i < utf8.length; i++) {
           out += String.fromCharCode(utf8.charCodeAt(i) ^ secret.charCodeAt(i % secret.length));
         }
-        return JSON.stringify({ v: 6, alg: "XOR-B64", data: btoa(out) });
+        return JSON.stringify({ v: 300, alg: "XOR-B64", data: btoa(out) });
       }
     }
 
