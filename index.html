@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Suivi des Abonnements — Magazines & Journaux</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,7 +28,6 @@
     .modal-backdrop {
       backdrop-filter: blur(4px);
     }
-    /* Masquer scrollbar sur mobile pour les barres horizontales de filtres */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -42,10 +39,9 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- ==================== ÉCRAN D'AUTHENTIFICATION ==================== -->
+  <!-- ==================== ÉCRAN D'AUTHENTIFICATION LOCAL ==================== -->
   <div id="auth-gate" class="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center p-4 overflow-y-auto">
     <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto">
-      <!-- En-tête sécurité -->
       <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 px-6 py-7 text-white text-center relative">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg mb-3">
           <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -53,26 +49,13 @@
           </svg>
         </div>
         <h1 class="text-xl font-extrabold tracking-tight">Espace Abonnements Partagé</h1>
-        <p class="text-xs text-indigo-100 mt-1">Accès sécurisé • Vue commune pour la famille</p>
-      </div>
-
-      <!-- Onglets méthode d'accès -->
-      <div class="px-6 pt-5">
-        <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-          <button type="button" id="tab-local" onclick="switchAuthTab('local')" class="py-2.5 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition">
-            🔑 Code / Mot de passe
-          </button>
-          <button type="button" id="tab-sso" onclick="switchAuthTab('sso')" class="py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition">
-            🌐 Google / Apple
-          </button>
-        </div>
+        <p class="text-xs text-indigo-100 mt-1">Accès sécurisé par mot de passe</p>
       </div>
 
       <!-- Message d'alerte -->
       <div id="auth-alert" class="hidden mx-6 mt-4 px-3.5 py-2.5 rounded-xl text-xs font-medium border"></div>
 
-      <!-- Panneau 1 : Authentification Locale -->
-      <div id="panel-local" class="p-6 space-y-4">
+      <div class="p-6 space-y-4">
         <div id="local-setup-info" class="hidden bg-indigo-50 border border-indigo-100 rounded-xl p-3 text-xs text-indigo-900">
           <p class="font-bold">✨ Première configuration</p>
           <p class="mt-0.5 text-indigo-700">Définissez un mot de passe ou code PIN (4 caractères min.) pour protéger l'accès à vos abonnements.</p>
@@ -115,66 +98,10 @@
         </div>
 
         <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-          <span>Accès partagé famille</span>
+          <span>Données masquées avant connexion</span>
           <button type="button" onclick="resetLocalVault()" class="text-slate-500 hover:text-rose-600 underline transition py-1">
             Réinitialiser
           </button>
-        </div>
-      </div>
-
-      <!-- Panneau 2 : Google & Apple Sign-In -->
-      <div id="panel-sso" class="hidden p-6 space-y-4">
-        <div id="sso-buttons-container" class="space-y-3">
-          <div id="google-btn-wrapper" class="flex flex-col items-center">
-            <div id="g_id_signin" class="w-full flex justify-center"></div>
-            <button type="button" id="google-fallback-btn" onclick="triggerGoogleSignIn()"
-              class="w-full py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm shadow-xs transition flex items-center justify-center gap-2.5">
-              <svg class="w-4 h-4" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24z"/>
-                <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14z"/>
-                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96z"/>
-              </svg>
-              <span>Continuer avec Google</span>
-            </button>
-          </div>
-
-          <button type="button" onclick="triggerAppleSignIn()"
-            class="w-full py-3 px-4 rounded-xl bg-black hover:bg-neutral-900 text-white font-semibold text-sm shadow-xs transition flex items-center justify-center gap-2.5">
-            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-            </svg>
-            <span>Continuer avec Apple</span>
-          </button>
-        </div>
-
-        <div class="border border-slate-200 rounded-xl overflow-hidden">
-          <button type="button" onclick="toggleSsoConfig()"
-            class="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-left text-xs font-semibold text-slate-700 flex items-center justify-between">
-            <span>⚙️ Configuration Google / Apple SSO</span>
-            <span id="sso-config-chevron">▾</span>
-          </button>
-          <div id="sso-config-body" class="hidden p-3.5 space-y-3 bg-white border-t border-slate-200 text-xs">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Google Client ID</label>
-              <input type="text" id="cfg-google-client-id" placeholder="xxxx.apps.googleusercontent.com"
-                class="w-full px-2.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Apple Services ID</label>
-              <input type="text" id="cfg-apple-client-id" placeholder="com.domaine.app"
-                class="w-full px-2.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Emails autorisés (séparés par virgule)</label>
-              <input type="text" id="cfg-allowed-emails" placeholder="vous@gmail.com, conjoint@icloud.com"
-                class="w-full px-2.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-            <button type="button" onclick="saveSsoConfig()"
-              class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
-              Enregistrer
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -194,12 +121,18 @@
           </div>
           <div class="min-w-0">
             <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 truncate">Abonnements Presse</h1>
-            <p class="text-[11px] text-slate-500 truncate hidden sm:block">Vue partagée famille</p>
+            <p id="session-user-label" class="text-[11px] text-slate-500 truncate hidden sm:block">Espace partagé</p>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2.5">
-          <!-- Bouton Abonnés -->
+          <!-- Biométrie -->
+          <button id="setup-biometric-btn" onclick="registerBiometrics()" title="Activer Touch ID / Face ID"
+            class="hidden px-2.5 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition items-center gap-1">
+            <span>👆</span>
+          </button>
+
+          <!-- Bouton Lecteurs -->
           <button onclick="openSubscribersModal()" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
             <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -208,7 +141,7 @@
             <span id="header-subscriber-count" class="bg-white text-slate-700 text-[11px] font-bold px-1.5 py-0.5 rounded-md border border-slate-200">0</span>
           </button>
 
-          <!-- Menu Données (Export / Import / Exemples) -->
+          <!-- Menu Données -->
           <div class="relative">
             <button onclick="toggleDataMenu()" title="Sauvegarder / Restaurer" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -230,7 +163,7 @@
             </div>
           </div>
 
-          <!-- Bouton Nouvel Abonnement -->
+          <!-- Bouton Ajouter -->
           <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -238,7 +171,7 @@
             <span>Ajouter</span>
           </button>
 
-          <!-- Bouton Verrouiller -->
+          <!-- Verrouiller -->
           <button onclick="lockApp()" title="Verrouiller" class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -298,14 +231,10 @@
         </div>
       </section>
 
-      <!-- Filtres & Recherche (Responsive) -->
+      <!-- Filtres & Recherche -->
       <section class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-        <!-- Barre des lecteurs cliquables (scrollable sur mobile) -->
-        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="subscriber-filter-bar">
-          <!-- Généré dynamiquement -->
-        </div>
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="subscriber-filter-bar"></div>
 
-        <!-- Champs de recherche, filtres et tris -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
           <div class="relative">
             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -340,9 +269,7 @@
       </section>
 
       <!-- Grille des abonnements -->
-      <section id="subscriptions-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-        <!-- Cartes générées dynamiquement -->
-      </section>
+      <section id="subscriptions-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"></section>
 
       <!-- État vide -->
       <div id="empty-state" class="hidden bg-white rounded-2xl border border-dashed border-slate-300 p-8 sm:p-12 text-center">
@@ -351,7 +278,7 @@
         </div>
         <h3 class="text-base font-bold text-slate-900">Aucun abonnement trouvé</h3>
         <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-          Ajoutez un abonnement : le catalogue de plus de 60 magazines pré-remplira automatiquement la fréquence et les dates.
+          Ajoutez un abonnement : les 65 magazines du catalogue pré-remplissent automatiquement la fréquence, la catégorie et la date de fin.
         </p>
         <div class="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
           <button onclick="openSubscriptionModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">
@@ -371,7 +298,7 @@
       <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
         <div>
           <h2 id="sub-modal-title" class="text-base sm:text-lg font-bold text-slate-900">Nouvel abonnement</h2>
-          <p class="text-xs text-slate-500">Sélectionnez un titre pour auto-remplir la fréquence.</p>
+          <p class="text-xs text-slate-500">Sélectionnez un titre pour pré-remplir automatiquement ses informations.</p>
         </div>
         <button onclick="closeSubscriptionModal()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200/60 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -380,23 +307,22 @@
         </button>
       </div>
 
-      <form id="subscription-form" onsubmit="saveSubscription(event)" class="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+      <form id="subscription-form" onsubmit="saveSubscription(event)" class="p-5 sm:p-6 space-y-4 max-h-[82vh] overflow-y-auto">
         <input type="hidden" id="sub-id" />
 
-        <!-- Pré-remplissage rapide catalogue -->
         <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5">
           <label class="block text-xs font-bold uppercase tracking-wider text-indigo-800 mb-1.5">
-            ⚡ Catalogue Presse & Jeunesse (60+ titres)
+            ⚡ Catalogue Presse & Jeunesse (65 titres)
           </label>
           <select id="catalog-preset" onchange="applyCatalogPreset(this.value)" class="w-full bg-white border border-indigo-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="">— Choisir un magazine ou saisir ci-dessous —</option>
+            <option value="">— Choisir un magazine ou saisir librement ci-dessous —</option>
           </select>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div class="sm:col-span-2">
             <label class="block text-xs font-semibold text-slate-700 mb-1">Titre *</label>
-            <input type="text" id="sub-title" list="magazines-datalist" oninput="onTitleInput(this.value)" required placeholder="Nom du magazine..."
+            <input type="text" id="sub-title" list="magazines-datalist" oninput="onTitleInput(this.value)" required placeholder="Ex: Pomme d'Api, Astrapi, Le Monde..."
               class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
             <datalist id="magazines-datalist"></datalist>
           </div>
@@ -432,7 +358,7 @@
               <option value="6">6 mois</option>
               <option value="12" selected>1 an (12 mois)</option>
               <option value="24">2 ans (24 mois)</option>
-              <option value="custom">Manuel</option>
+              <option value="custom">Date manuelle</option>
             </select>
           </div>
 
@@ -472,15 +398,15 @@
         <!-- Lecteurs -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-xs font-semibold text-slate-700">Lecteur(s) associé(s) *</label>
+            <label class="block text-xs font-semibold text-slate-700">Lecteur(s) abonné(s)</label>
             <button type="button" onclick="quickAddSubscriberInline()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
-              + Ajouter
+              + Ajouter une personne
             </button>
           </div>
           <div id="modal-subscribers-selector" class="flex flex-wrap gap-2"></div>
           <div id="inline-new-subscriber" class="hidden mt-2.5 flex items-center gap-2">
             <input type="text" id="inline-sub-name" placeholder="Prénom..." class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-xl" />
-            <input type="text" id="inline-sub-age" placeholder="Âge/Rôle" class="w-28 px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+            <input type="text" id="inline-sub-age" placeholder="Âge/Note" class="w-28 px-3 py-2 text-sm border border-slate-300 rounded-xl" />
             <button type="button" onclick="confirmInlineSubscriber()" class="px-3.5 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-xl">OK</button>
           </div>
         </div>
@@ -540,21 +466,88 @@
     </div>
   </div>
 
-  <!-- Toast notification -->
+  <!-- Toast -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5">
     <span id="toast-icon">✓</span>
     <span id="toast-message">Action effectuée</span>
   </div>
 
   <script>
-    let MAGAZINE_CATALOG = [];
+    const MAGAZINE_CATALOG = [
+      { title: "Popi", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "1-3 ans" },
+      { title: "Tralalire", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "2-5 ans" },
+      { title: "Babar", category: "Jeunesse", frequency: "monthly", duration: 12, price: 62, publisher: "Bayard Jeunesse", age: "2-5 ans" },
+      { title: "Pomme d'Api", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "3-7 ans" },
+      { title: "Histoires pour les petits", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "2-6 ans" },
+      { title: "Toupie", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "3-6 ans" },
+      { title: "Toupie Jeux", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 36, publisher: "Milan Presse", age: "3-6 ans" },
+      { title: "Abricot", category: "Jeunesse", frequency: "monthly", duration: 12, price: 62, publisher: "Fleurus Presse", age: "3-6 ans" },
+      { title: "Manolo et les Histoires", category: "Jeunesse", frequency: "monthly", duration: 12, price: 60, publisher: "Milan Presse", age: "3-6 ans" },
+      { title: "Wakou", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "4-8 ans" },
+      { title: "Pirouette", category: "Jeunesse", frequency: "monthly", duration: 12, price: 62, publisher: "Fleurus Presse", age: "4-8 ans" },
+      { title: "Youpi, j'ai compris !", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "5-8 ans" },
+      { title: "Disney Princess", category: "Jeunesse", frequency: "monthly", duration: 12, price: 59, publisher: "Panini", age: "5-9 ans" },
+      { title: "Mes premiers J'aime lire", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "6-7 ans" },
+      { title: "Toboggan", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "6-9 ans" },
+      { title: "Le Petit Quotidien", category: "Actualités", frequency: "daily", duration: 12, price: 169, publisher: "PlayBac Presse", age: "6-10 ans" },
+      { title: "Lego Star Wars", category: "Jeunesse", frequency: "monthly", duration: 12, price: 75, publisher: "Panini", age: "6-12 ans" },
+      { title: "J'aime lire", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "7-10 ans" },
+      { title: "Astrapi", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard Jeunesse", age: "7-11 ans" },
+      { title: "Wapiti", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "7-12 ans" },
+      { title: "Science & Vie Découvertes", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 62, publisher: "Reworld Media", age: "7-12 ans" },
+      { title: "Curionaut", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 69, publisher: "Fleurus Presse", age: "7-12 ans" },
+      { title: "Le Journal de Mickey", category: "Jeunesse", frequency: "weekly", duration: 12, price: 119, publisher: "Unique Heritage", age: "7-14 ans" },
+      { title: "Images Doc", category: "Jeunesse", frequency: "monthly", duration: 12, price: 72, publisher: "Bayard Jeunesse", age: "8-12 ans" },
+      { title: "1jour1actu", category: "Actualités", frequency: "weekly", duration: 12, price: 72, publisher: "Milan Presse", age: "8-12 ans" },
+      { title: "Salamandre Junior", category: "Culture & Sciences", frequency: "bimonthly", duration: 12, price: 38, publisher: "La Salamandre", age: "8-12 ans" },
+      { title: "Picsou Magazine", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 39, publisher: "Unique Heritage", age: "8-14 ans" },
+      { title: "Mickey Parade Géant", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 45, publisher: "Unique Heritage", age: "8-14 ans" },
+      { title: "Spirou", category: "Jeunesse", frequency: "weekly", duration: 12, price: 149, publisher: "Dupuis", age: "8-14 ans" },
+      { title: "Pif Gadget", category: "Jeunesse", frequency: "quarterly", duration: 12, price: 35, publisher: "Humanis", age: "8-14 ans" },
+      { title: "Dada", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 75, publisher: "Arola Éditions", age: "8-15 ans" },
+      { title: "J'aime lire Max", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "9-13 ans" },
+      { title: "Mon Quotidien", category: "Actualités", frequency: "daily", duration: 12, price: 169, publisher: "PlayBac Presse", age: "10-14 ans" },
+      { title: "Okapi", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard Jeunesse", age: "10-15 ans" },
+      { title: "Géo Ado", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "10-15 ans" },
+      { title: "Le Monde des Ados", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 99, publisher: "Fleurus Presse", age: "10-15 ans" },
+      { title: "Science & Vie Junior", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 65, publisher: "Reworld Media", age: "11-17 ans" },
+      { title: "L'Actu", category: "Actualités", frequency: "daily", duration: 12, price: 169, publisher: "PlayBac Presse", age: "13-18 ans" },
+      { title: "Phosphore", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard Jeunesse", age: "14+ ans" },
+      { title: "Le Monde", category: "Actualités", frequency: "daily", duration: 12, price: 299, publisher: "Groupe Le Monde" },
+      { title: "Le Figaro", category: "Actualités", frequency: "daily", duration: 12, price: 290, publisher: "Groupe Figaro" },
+      { title: "Libération", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Altice" },
+      { title: "La Croix", category: "Actualités", frequency: "daily", duration: 12, price: 275, publisher: "Bayard" },
+      { title: "L'Équipe", category: "Loisirs & Sport", frequency: "daily", duration: 12, price: 280, publisher: "Groupe Amaury" },
+      { title: "Courrier International", category: "Actualités", frequency: "weekly", duration: 12, price: 139, publisher: "Groupe Le Monde" },
+      { title: "L'Obs / Le Nouvel Obs", category: "Actualités", frequency: "weekly", duration: 12, price: 129, publisher: "Groupe Le Monde" },
+      { title: "Le Point", category: "Actualités", frequency: "weekly", duration: 12, price: 135, publisher: "Artémis" },
+      { title: "L'Express", category: "Actualités", frequency: "weekly", duration: 12, price: 135, publisher: "Express Renaissance" },
+      { title: "Marianne", category: "Actualités", frequency: "weekly", duration: 12, price: 119, publisher: "CMI France" },
+      { title: "Paris Match", category: "Actualités", frequency: "weekly", duration: 12, price: 130, publisher: "Lagardère" },
+      { title: "Télérama", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 119, publisher: "Groupe Le Monde" },
+      { title: "Canard Enchaîné", category: "Actualités", frequency: "weekly", duration: 12, price: 75, publisher: "Éditions Maréchal" },
+      { title: "National Geographic France", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 54, publisher: "Prisma Media" },
+      { title: "Science & Vie", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 59, publisher: "Reworld Media" },
+      { title: "Sciences et Avenir", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 55, publisher: "Challenges" },
+      { title: "GEO", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 58, publisher: "Prisma Media" },
+      { title: "Ça M'intéresse", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 55, publisher: "Prisma Media" },
+      { title: "Historia", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 62, publisher: "Artémis" },
+      { title: "Alternatives Économiques", category: "Actualités", frequency: "monthly", duration: 12, price: 79, publisher: "Scop Alternatives" },
+      { title: "60 Millions de Consommateurs", category: "Actualités", frequency: "monthly", duration: 12, price: 52, publisher: "INC" },
+      { title: "Que Choisir", category: "Actualités", frequency: "monthly", duration: 12, price: 50, publisher: "UFC-Que Choisir" },
+      { title: "Psychologies Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 49, publisher: "Reworld Media" },
+      { title: "Philosophie Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 69, publisher: "Philovox" },
+      { title: "Beaux Arts Magazine", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 89, publisher: "TTM Éditions" },
+      { title: "Auto Plus", category: "Loisirs & Sport", frequency: "weekly", duration: 12, price: 115, publisher: "Reworld Media" }
+    ];
+
     const FREQUENCY_META = {
-      daily:     { label: "Quotidien",    perMonth: 26, perYear: 312, badgeClass: "bg-rose-50 text-rose-700 border-rose-200" },
-      weekly:    { label: "Hebdomadaire", perMonth: 4.33, perYear: 52, badgeClass: "bg-amber-50 text-amber-700 border-amber-200" },
-      biweekly:  { label: "Bimensuel",    perMonth: 2,  perYear: 24,  badgeClass: "bg-sky-50 text-sky-700 border-sky-200" },
-      monthly:   { label: "Mensuel",      perMonth: 1,  perYear: 12,  badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-      bimonthly: { label: "Bimestriel",   perMonth: 0.5, perYear: 6,  badgeClass: "bg-purple-50 text-purple-700 border-purple-200" },
-      quarterly: { label: "Trimestriel",  perMonth: 0.33, perYear: 4, badgeClass: "bg-teal-50 text-teal-700 border-teal-200" }
+      daily:     { label: "Quotidien",    perMonth: 26,   perYear: 312, badgeClass: "bg-rose-50 text-rose-700 border-rose-200" },
+      weekly:    { label: "Hebdomadaire", perMonth: 4.33, perYear: 52,  badgeClass: "bg-amber-50 text-amber-700 border-amber-200" },
+      biweekly:  { label: "Bimensuel",    perMonth: 2,    perYear: 24,  badgeClass: "bg-sky-50 text-sky-700 border-sky-200" },
+      monthly:   { label: "Mensuel",      perMonth: 1,    perYear: 12,  badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+      bimonthly: { label: "Bimestriel",   perMonth: 0.5,  perYear: 6,   badgeClass: "bg-purple-50 text-purple-700 border-purple-200" },
+      quarterly: { label: "Trimestriel",  perMonth: 0.33, perYear: 4,   badgeClass: "bg-teal-50 text-teal-700 border-teal-200" }
     };
 
     const SUBSCRIBER_COLORS = [
@@ -566,55 +559,40 @@
       { bg: "bg-violet-100", text: "text-violet-800", dot: "bg-violet-500", border: "border-violet-200" }
     ];
 
-    const VAULT_META_KEY = "presse_vault_meta_v3";
-    const VAULT_DATA_KEY = "presse_vault_data_v3";
-    const SSO_CONFIG_KEY = "presse_sso_config_v3";
-    const WEBAUTHN_KEY   = "presse_webauthn_v3";
+    const VAULT_META_KEY = "presse_shared_meta_v6";
+    const VAULT_DATA_KEY = "presse_shared_data_v6";
+    const WEBAUTHN_KEY   = "presse_webauthn_v6";
 
     let sessionKeyMaterial = null;
     let state = { subscribers: [], subscriptions: [], selectedSubscriberFilter: "all" };
     let modalSelectedSubscriberIds = [];
 
-    // Chargement dynamique du catalogue externe magazines.json
-    async function loadMagazineCatalog() {
-      try {
-        const res = await fetch("magazines.json");
-        if (res.ok) {
-          const data = await res.json();
-          MAGAZINE_CATALOG = data.magazines || [];
-        }
-      } catch (e) {
-        console.warn("Chargement magazines.json externe indisponible, repli minimal.", e);
-        MAGAZINE_CATALOG = [
-          { title: "Pomme d'Api", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard", age: "3-7 ans" },
-          { title: "Astrapi", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard", age: "7-11 ans" },
-          { title: "Le Monde", category: "Actualités", frequency: "daily", duration: 12, price: 299, publisher: "Le Monde" }
-        ];
-      }
-      populateCatalogControls();
-    }
-
     function getVaultMeta() {
       try { return JSON.parse(localStorage.getItem(VAULT_META_KEY) || "null"); } catch { return null; }
     }
 
-    function getSsoConfig() {
-      try { return JSON.parse(localStorage.getItem(SSO_CONFIG_KEY) || '{"googleClientId":"","appleClientId":"","allowedEmails":""}'); } catch { return { googleClientId: "", appleClientId: "", allowedEmails: "" }; }
-    }
-
-    async function deriveKeyAndVerify(password, saltHex) {
+    async function deriveKeyAndVerify(secret, saltHex) {
       if (window.crypto && window.crypto.subtle) {
         const enc = new TextEncoder();
-        const keyMaterial = await window.crypto.subtle.importKey("raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveBits", "deriveKey"]);
+        const keyMaterial = await window.crypto.subtle.importKey("raw", enc.encode(secret), { name: "PBKDF2" }, false, ["deriveBits", "deriveKey"]);
         const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
-        const aesKey = await window.crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+        const aesKey = await window.crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+          keyMaterial,
+          { name: "AES-GCM", length: 256 },
+          true,
+          ["encrypt", "decrypt"]
+        );
         const rawExport = await window.crypto.subtle.exportKey("raw", aesKey);
         const verifier = Array.from(new Uint8Array(rawExport)).slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
-        return { aesKey, verifier, fallbackSecret: password + ":" + saltHex };
+        return { aesKey, verifier, fallbackSecret: secret + ":" + saltHex };
       } else {
         let hash = 2166136261;
-        const input = password + ":" + saltHex;
-        for (let i = 0; i < input.length; i++) { hash ^= input.charCodeAt(i); hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24); }
+        const input = secret + ":" + saltHex;
+        for (let i = 0; i < input.length; i++) {
+          hash ^= input.charCodeAt(i);
+          hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+        }
         return { aesKey: null, verifier: (hash >>> 0).toString(16), fallbackSecret: input };
       }
     }
@@ -624,13 +602,20 @@
       if (sessionKeyMaterial && sessionKeyMaterial.aesKey && window.crypto && window.crypto.subtle) {
         const iv = window.crypto.getRandomValues(new Uint8Array(12));
         const cipher = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, sessionKeyMaterial.aesKey, new TextEncoder().encode(json));
-        return JSON.stringify({ v: 3, alg: "AES-GCM", iv: Array.from(iv).map(b => b.toString(16).padStart(2, "0")).join(""), data: btoa(String.fromCharCode(...new Uint8Array(cipher))) });
+        return JSON.stringify({
+          v: 6,
+          alg: "AES-GCM",
+          iv: Array.from(iv).map(b => b.toString(16).padStart(2, "0")).join(""),
+          data: btoa(String.fromCharCode(...new Uint8Array(cipher)))
+        });
       } else {
-        const secret = (sessionKeyMaterial && sessionKeyMaterial.fallbackSecret) || "default-key";
+        const secret = (sessionKeyMaterial && sessionKeyMaterial.fallbackSecret) || "shared-family-key";
         const utf8 = unescape(encodeURIComponent(json));
         let out = "";
-        for (let i = 0; i < utf8.length; i++) { out += String.fromCharCode(utf8.charCodeAt(i) ^ secret.charCodeAt(i % secret.length)); }
-        return JSON.stringify({ v: 3, alg: "XOR-B64", data: btoa(out) });
+        for (let i = 0; i < utf8.length; i++) {
+          out += String.fromCharCode(utf8.charCodeAt(i) ^ secret.charCodeAt(i % secret.length));
+        }
+        return JSON.stringify({ v: 6, alg: "XOR-B64", data: btoa(out) });
       }
     }
 
@@ -639,20 +624,26 @@
       const parsed = JSON.parse(rawStr);
       if (parsed.alg === "AES-GCM" && sessionKeyMaterial && sessionKeyMaterial.aesKey && window.crypto && window.crypto.subtle) {
         const iv = new Uint8Array(parsed.iv.match(/.{1,2}/g).map(b => parseInt(b, 16)));
-        const plainBuf = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv }, sessionKeyMaterial.aesKey, Uint8Array.from(atob(parsed.data), c => c.charCodeAt(0)));
+        const plainBuf = await window.crypto.subtle.decrypt(
+          { name: "AES-GCM", iv },
+          sessionKeyMaterial.aesKey,
+          Uint8Array.from(atob(parsed.data), c => c.charCodeAt(0))
+        );
         return JSON.parse(new TextDecoder().decode(plainBuf));
       } else if (parsed.alg === "XOR-B64") {
-        const secret = (sessionKeyMaterial && sessionKeyMaterial.fallbackSecret) || "default-key";
+        const secret = (sessionKeyMaterial && sessionKeyMaterial.fallbackSecret) || "shared-family-key";
         const bin = atob(parsed.data);
         let utf8 = "";
-        for (let i = 0; i < bin.length; i++) { utf8 += String.fromCharCode(bin.charCodeAt(i) ^ secret.charCodeAt(i % secret.length)); }
+        for (let i = 0; i < bin.length; i++) {
+          utf8 += String.fromCharCode(bin.charCodeAt(i) ^ secret.charCodeAt(i % secret.length));
+        }
         return JSON.parse(decodeURIComponent(escape(utf8)));
       }
       return null;
     }
 
     function initAuthGate() {
-      loadMagazineCatalog();
+      populateCatalogControls();
       const meta = getVaultMeta();
       const setupInfo = document.getElementById("local-setup-info");
       const submitText = document.getElementById("local-submit-text");
@@ -671,44 +662,31 @@
       if (localStorage.getItem(WEBAUTHN_KEY) && window.PublicKeyCredential) {
         document.getElementById("biometric-section").classList.remove("hidden");
       }
-
-      const sso = getSsoConfig();
-      document.getElementById("cfg-google-client-id").value = sso.googleClientId || "";
-      document.getElementById("cfg-apple-client-id").value = sso.appleClientId || "";
-      document.getElementById("cfg-allowed-emails").value = sso.allowedEmails || "";
-    }
-
-    function switchAuthTab(tab) {
-      document.getElementById("auth-alert").classList.add("hidden");
-      const tabLocal = document.getElementById("tab-local");
-      const tabSso = document.getElementById("tab-sso");
-      const panelLocal = document.getElementById("panel-local");
-      const panelSso = document.getElementById("panel-sso");
-
-      if (tab === "local") {
-        tabLocal.className = "py-2.5 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition";
-        tabSso.className = "py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition";
-        panelLocal.classList.remove("hidden");
-        panelSso.classList.add("hidden");
-      } else {
-        tabSso.className = "py-2.5 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition";
-        tabLocal.className = "py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition";
-        panelSso.classList.remove("hidden");
-        panelLocal.classList.add("hidden");
-        initGoogleButtonIfConfigured();
-      }
     }
 
     function showAuthAlert(msg, type = "error") {
       const el = document.getElementById("auth-alert");
       el.textContent = msg;
-      el.className = "mx-6 mt-4 px-3.5 py-2.5 rounded-xl text-xs font-medium border " + (type === "error" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-emerald-50 text-emerald-700 border-emerald-200");
+      el.className = "mx-6 mt-4 px-3.5 py-2.5 rounded-xl text-xs font-medium border " +
+        (type === "error" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-emerald-50 text-emerald-700 border-emerald-200");
       el.classList.remove("hidden");
     }
 
     function togglePasswordVisibility() {
       const input = document.getElementById("local-password");
       input.type = input.type === "password" ? "text" : "password";
+    }
+
+    async function getSharedFamilyKey() {
+      let meta = getVaultMeta();
+      if (!meta) {
+        const saltBytes = window.crypto ? window.crypto.getRandomValues(new Uint8Array(16)) : Array.from({ length: 16 }, () => Math.floor(Math.random() * 256));
+        const saltHex = Array.from(saltBytes).map(b => b.toString(16).padStart(2, "0")).join("");
+        const sharedSecret = "FAMILY_SHARED_VAULT_SECRET_" + saltHex;
+        meta = { saltHex, sharedSecret, verifier: null };
+        localStorage.setItem(VAULT_META_KEY, JSON.stringify(meta));
+      }
+      return deriveKeyAndVerify(meta.sharedSecret, meta.saltHex);
     }
 
     async function handleLocalAuth(event) {
@@ -718,35 +696,71 @@
       if (pwd.length < 4) { showAuthAlert("4 caractères minimum requis."); return; }
 
       let meta = getVaultMeta();
-      if (!meta) {
+      if (!meta || !meta.verifier) {
         const saltBytes = window.crypto ? window.crypto.getRandomValues(new Uint8Array(16)) : Array.from({ length: 16 }, () => Math.floor(Math.random() * 256));
-        const saltHex = Array.from(saltBytes).map(b => b.toString(16).padStart(2, "0")).join("");
-        const derived = await deriveKeyAndVerify(pwd, saltHex);
-        meta = { saltHex, verifier: derived.verifier };
+        const saltHex = (meta && meta.saltHex) || Array.from(saltBytes).map(b => b.toString(16).padStart(2, "0")).join("");
+        const sharedSecret = (meta && meta.sharedSecret) || ("FAMILY_SHARED_VAULT_SECRET_" + saltHex);
+        const pwdCheck = await deriveKeyAndVerify(pwd, saltHex);
+
+        meta = { saltHex, sharedSecret, verifier: pwdCheck.verifier };
         localStorage.setItem(VAULT_META_KEY, JSON.stringify(meta));
-        sessionKeyMaterial = derived;
-        state = { subscribers: [], subscriptions: [], selectedSubscriberFilter: "all" };
-        await persistState();
-        unlockSuccess();
+        sessionKeyMaterial = await getSharedFamilyKey();
+
+        const existingRaw = localStorage.getItem(VAULT_DATA_KEY);
+        if (existingRaw) {
+          const loaded = await decryptPayload(existingRaw);
+          if (loaded) state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" };
+        } else {
+          await persistState();
+        }
+        unlockSuccess("local", "Accès local");
       } else {
-        const derived = await deriveKeyAndVerify(pwd, meta.saltHex);
-        if (derived.verifier !== meta.verifier) { showAuthAlert("Mot de passe incorrect."); return; }
-        sessionKeyMaterial = derived;
+        const pwdCheck = await deriveKeyAndVerify(pwd, meta.saltHex);
+        if (pwdCheck.verifier !== meta.verifier) {
+          showAuthAlert("Mot de passe incorrect.");
+          return;
+        }
+        sessionKeyMaterial = await getSharedFamilyKey();
         const loaded = await decryptPayload(localStorage.getItem(VAULT_DATA_KEY));
         if (loaded) {
           state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" };
         }
-        unlockSuccess();
+        unlockSuccess("local", "Accès local");
       }
     }
 
     function resetLocalVault() {
-      if (!confirm("Réinitialiser le coffre local ?")) return;
+      if (!confirm("Réinitialiser le mot de passe local ?")) return;
       localStorage.removeItem(VAULT_META_KEY);
       localStorage.removeItem(VAULT_DATA_KEY);
       localStorage.removeItem(WEBAUTHN_KEY);
+      document.getElementById("local-password").value = "";
+      document.getElementById("biometric-section").classList.add("hidden");
       initAuthGate();
       showAuthAlert("Coffre réinitialisé.", "success");
+    }
+
+    async function registerBiometrics() {
+      if (!window.PublicKeyCredential || !sessionKeyMaterial) return;
+      try {
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            challenge: window.crypto.getRandomValues(new Uint8Array(32)),
+            rp: { name: "Abonnements Presse" },
+            user: { id: window.crypto.getRandomValues(new Uint8Array(16)), name: "famille@local", displayName: "Famille" },
+            pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
+            authenticatorSelection: { userVerification: "required" }
+          }
+        });
+        if (cred) {
+          localStorage.setItem(WEBAUTHN_KEY, JSON.stringify({
+            rawId: btoa(String.fromCharCode(...new Uint8Array(cred.rawId)))
+          }));
+          showToast("Biométrie activée !");
+        }
+      } catch {
+        showToast("Activation annulée");
+      }
     }
 
     async function unlockWithBiometrics() {
@@ -754,78 +768,34 @@
         const saved = JSON.parse(localStorage.getItem(WEBAUTHN_KEY) || "null");
         if (!saved) return;
         const assertion = await navigator.credentials.get({
-          publicKey: { challenge: window.crypto.getRandomValues(new Uint8Array(32)), allowCredentials: [{ id: Uint8Array.from(atob(saved.rawId), c => c.charCodeAt(0)), type: "public-key" }], userVerification: "required" }
+          publicKey: {
+            challenge: window.crypto.getRandomValues(new Uint8Array(32)),
+            allowCredentials: [{ id: Uint8Array.from(atob(saved.rawId), c => c.charCodeAt(0)), type: "public-key" }],
+            userVerification: "required"
+          }
         });
         if (assertion) {
-          const [pwd, saltHex] = saved.fallbackSecret.split(":");
-          sessionKeyMaterial = await deriveKeyAndVerify(pwd, saltHex);
+          sessionKeyMaterial = await getSharedFamilyKey();
           const loaded = await decryptPayload(localStorage.getItem(VAULT_DATA_KEY));
-          if (loaded) { state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" }; }
-          unlockSuccess();
+          if (loaded) {
+            state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" };
+          }
+          unlockSuccess("biometric", "Touch ID / Face ID");
         }
-      } catch { showAuthAlert("Échec biométrique."); }
+      } catch {
+        showAuthAlert("Échec biométrique.");
+      }
     }
 
-    function toggleSsoConfig() { document.getElementById("sso-config-body").classList.toggle("hidden"); }
-    function saveSsoConfig() {
-      localStorage.setItem(SSO_CONFIG_KEY, JSON.stringify({
-        googleClientId: document.getElementById("cfg-google-client-id").value.trim(),
-        appleClientId: document.getElementById("cfg-apple-client-id").value.trim(),
-        allowedEmails: document.getElementById("cfg-allowed-emails").value.trim().toLowerCase()
-      }));
-      showAuthAlert("Configuration enregistrée.", "success");
-      initGoogleButtonIfConfigured();
-    }
-
-    function verifyAuthorizedEmailAndUnlock(email) {
-      const cfg = getSsoConfig();
-      const list = (cfg.allowedEmails || "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
-      if (list.length > 0 && !list.includes(email.toLowerCase())) { showAuthAlert(`Accès refusé pour ${email}`); return; }
-      deriveKeyAndVerify("sso:" + email.toLowerCase(), "53534f5f53414c545f32303236").then(async derived => {
-        sessionKeyMaterial = derived;
-        const loaded = await decryptPayload(localStorage.getItem(VAULT_DATA_KEY));
-        if (loaded) { state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" }; }
-        unlockSuccess();
-      });
-    }
-
-    function initGoogleButtonIfConfigured() {
-      const cfg = getSsoConfig();
-      if (!cfg.googleClientId || !window.google || !window.google.accounts) return;
-      try {
-        window.google.accounts.id.initialize({ client_id: cfg.googleClientId, callback: (res) => {
-          const payload = JSON.parse(atob(res.credential.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
-          if (payload && payload.email) verifyAuthorizedEmailAndUnlock(payload.email);
-        }});
-        const target = document.getElementById("g_id_signin");
-        target.innerHTML = "";
-        window.google.accounts.id.renderButton(target, { theme: "outline", size: "large", width: 320 });
-        document.getElementById("google-fallback-btn").classList.add("hidden");
-      } catch (e) {}
-    }
-
-    function triggerGoogleSignIn() {
-      const cfg = getSsoConfig();
-      if (!cfg.googleClientId) { document.getElementById("sso-config-body").classList.remove("hidden"); showAuthAlert("Renseignez le Google Client ID."); return; }
-      if (window.google && window.google.accounts) window.google.accounts.id.prompt();
-    }
-
-    async function triggerAppleSignIn() {
-      const cfg = getSsoConfig();
-      if (!cfg.appleClientId) { document.getElementById("sso-config-body").classList.remove("hidden"); showAuthAlert("Renseignez l'Apple Services ID."); return; }
-      try {
-        window.AppleID.auth.init({ clientId: cfg.appleClientId, scope: "name email", redirectURI: window.location.origin + window.location.pathname, usePopup: true });
-        const data = await window.AppleID.auth.signIn();
-        if (data && data.authorization && data.authorization.id_token) {
-          const payload = JSON.parse(atob(data.authorization.id_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
-          if (payload && payload.email) verifyAuthorizedEmailAndUnlock(payload.email);
-        }
-      } catch (e) { showAuthAlert("Connexion Apple annulée."); }
-    }
-
-    function unlockSuccess() {
+    function unlockSuccess(method, label) {
+      document.getElementById("local-password").value = "";
       document.getElementById("auth-gate").classList.add("hidden");
       document.getElementById("app-shell").classList.remove("hidden");
+      document.getElementById("session-user-label").textContent = label;
+      if (method === "local" && window.PublicKeyCredential) {
+        document.getElementById("setup-biometric-btn").classList.remove("hidden");
+        document.getElementById("setup-biometric-btn").classList.add("inline-flex");
+      }
       renderApp();
     }
 
@@ -839,39 +809,55 @@
 
     async function persistState() {
       if (!sessionKeyMaterial) return;
-      localStorage.setItem(VAULT_DATA_KEY, await encryptPayload({ subscribers: state.subscribers, subscriptions: state.subscriptions }));
+      localStorage.setItem(VAULT_DATA_KEY, await encryptPayload({
+        subscribers: state.subscribers,
+        subscriptions: state.subscriptions
+      }));
     }
 
     function offsetDateISO(monthsOffset, daysOffset = 0) {
-      const d = new Date(); d.setMonth(d.getMonth() + monthsOffset); d.setDate(d.getDate() + daysOffset);
+      const d = new Date();
+      d.setMonth(d.getMonth() + monthsOffset);
+      d.setDate(d.getDate() + daysOffset);
       return d.toISOString().split("T")[0];
     }
 
     async function loadDemoData() {
-      const s1 = { id: "p1", name: "Lucas", role: "8 ans", colorIndex: 0 };
+      const s1 = { id: "p1", name: "Lucas", role: "9 ans", colorIndex: 0 };
       const s2 = { id: "p2", name: "Emma", role: "5 ans", colorIndex: 3 };
-      const s3 = { id: "p3", name: "Famille", role: "Parents", colorIndex: 1 };
+      const s3 = { id: "p3", name: "Parents", role: "Maison", colorIndex: 1 };
       state.subscribers = [s1, s2, s3];
       state.subscriptions = [
-        { id: "m1", title: "Astrapi", category: "Jeunesse", frequency: "biweekly", startDate: offsetDateISO(-6), endDate: offsetDateISO(6), totalIssues: 24, price: 108, subscriberIds: [s1.id], autoRenew: true, notes: "Réf #4920" },
-        { id: "m2", title: "Pomme d'Api", category: "Jeunesse", frequency: "monthly", startDate: offsetDateISO(-10), endDate: offsetDateISO(2), totalIssues: 12, price: 69, subscriberIds: [s2.id], autoRenew: false, notes: "" },
-        { id: "m3", title: "Courrier International", category: "Actualités", frequency: "weekly", startDate: offsetDateISO(-2), endDate: offsetDateISO(10), totalIssues: 52, price: 139, subscriberIds: [s3.id], autoRenew: true, notes: "Numérique inclus" }
+        { id: "m1", title: "Astrapi", category: "Jeunesse", frequency: "biweekly", startDate: offsetDateISO(-6), endDate: offsetDateISO(6), totalIssues: 24, price: 108, subscriberIds: [s1.id], autoRenew: true, notes: "Éditeur : Bayard Jeunesse (7-11 ans)" },
+        { id: "m2", title: "Pomme d'Api", category: "Jeunesse", frequency: "monthly", startDate: offsetDateISO(-11), endDate: offsetDateISO(0, 20), totalIssues: 12, price: 69, subscriberIds: [s2.id], autoRenew: false, notes: "À renouveler prochainement" },
+        { id: "m3", title: "Courrier International", category: "Actualités", frequency: "weekly", startDate: offsetDateISO(-2), endDate: offsetDateISO(10), totalIssues: 52, price: 139, subscriberIds: [s3.id], autoRenew: true, notes: "Éditeur : Groupe Le Monde" }
       ];
+      state.selectedSubscriberFilter = "all";
       await persistState();
       renderApp();
       toggleDataMenu(true);
-      showToast("Exemples chargés", "✨");
+      showToast("Exemples chargés ✨");
+    }
+
+    function estimateTotalIssues(startStr, endStr, frequency) {
+      if (!startStr || !endStr) return 12;
+      const days = Math.max(1, (new Date(endStr + "T00:00:00") - new Date(startStr + "T00:00:00")) / (1000 * 60 * 60 * 24));
+      const perM = (FREQUENCY_META[frequency] || FREQUENCY_META.monthly).perMonth;
+      return Math.max(1, Math.round((days / 30.4375) * perM));
     }
 
     function computeSubscriptionMetrics(sub) {
-      const today = new Date(); today.setHours(0,0,0,0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       const start = new Date(sub.startDate + "T00:00:00");
       const end = new Date(sub.endDate + "T00:00:00");
-      const daysRemaining = Math.ceil((end - today) / (1000*60*60*24));
+
+      const daysRemaining = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
       const totalMs = Math.max(1, end - start);
       const elapsedMs = today - start;
-      let progressPct = Math.max(0, Math.min(100, Math.round((elapsedMs / totalMs) * 100)));
-      const totalIssues = Number(sub.totalIssues) || 12;
+      const progressPct = Math.max(0, Math.min(100, Math.round((elapsedMs / totalMs) * 100)));
+
+      const totalIssues = Number(sub.totalIssues) || estimateTotalIssues(sub.startDate, sub.endDate, sub.frequency);
       const currentIssue = today < start ? 0 : today >= end ? totalIssues : Math.min(totalIssues, Math.max(1, Math.ceil((elapsedMs / totalMs) * totalIssues)));
 
       let status = "active", statusLabel = "Actif", statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200", barColor = "bg-indigo-600";
@@ -918,7 +904,7 @@
       const bar = document.getElementById("subscriber-filter-bar");
       const allActive = state.selectedSubscriberFilter === "all";
       let html = `<button onclick="setSubscriberFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${allActive ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"}">Tous (${state.subscriptions.length})</button>`;
-      
+
       state.subscribers.forEach(p => {
         const count = state.subscriptions.filter(s => (s.subscriberIds || []).includes(p.id)).length;
         const isSel = state.selectedSubscriberFilter === p.id;
@@ -986,7 +972,7 @@
 
               <div class="mt-3.5">
                 <div class="flex items-center justify-between text-xs mb-1">
-                  <span class="text-slate-600">N° <strong class="text-slate-900">${metrics.currentIssue}</strong> / ${metrics.totalIssues}</span>
+                  <span class="text-slate-600">Numéro estimé : <strong class="text-slate-900">${metrics.currentIssue}</strong> / ${metrics.totalIssues}</span>
                   <span class="font-semibold text-slate-500">${metrics.progressPct}%</span>
                 </div>
                 <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -997,7 +983,10 @@
             </div>
 
             <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-              <span class="text-xs font-semibold text-slate-700">${sub.price ? Number(sub.price).toFixed(0) + " €" : ""}</span>
+              <div class="flex items-center gap-2 text-xs text-slate-500">
+                ${sub.price ? `<span class="font-semibold text-slate-700">${Number(sub.price).toFixed(0)} €</span>` : ""}
+                ${sub.autoRenew ? `<span class="text-indigo-600 font-medium">↻ Auto</span>` : ""}
+              </div>
               <div class="flex items-center gap-1">
                 <button onclick="renewSubscriptionOneYear('${sub.id}')" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition">+1 an</button>
                 <button onclick="openSubscriptionModal('${sub.id}')" class="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition">✏️</button>
@@ -1012,8 +1001,7 @@
     function populateCatalogControls() {
       const select = document.getElementById("catalog-preset");
       const datalist = document.getElementById("magazines-datalist");
-      select.innerHTML = '<option value="">— Choisir un magazine ou saisir ci-dessous —</option>';
-      datalist.innerHTML = "";
+      if (select.options.length > 1) return;
 
       const sorted = [...MAGAZINE_CATALOG].sort((a, b) => a.title.localeCompare(b.title, "fr"));
       sorted.forEach(item => {
@@ -1065,13 +1053,14 @@
       }
       const endStr = document.getElementById("sub-end-date").value;
       if (startStr && endStr) {
-        const days = Math.max(1, (new Date(endStr) - new Date(startStr)) / (1000*60*60*24));
-        const perM = (FREQUENCY_META[frequency] || FREQUENCY_META.monthly).perMonth;
-        document.getElementById("sub-total-issues").value = Math.max(1, Math.round((days / 30.4375) * perM));
+        document.getElementById("sub-total-issues").value = estimateTotalIssues(startStr, endStr, frequency);
       }
     }
 
-    function onManualEndDate() { document.getElementById("sub-duration").value = "custom"; recalculateAutoFields(); }
+    function onManualEndDate() {
+      document.getElementById("sub-duration").value = "custom";
+      recalculateAutoFields();
+    }
 
     function openSubscriptionModal(editId = null) {
       const form = document.getElementById("subscription-form");
@@ -1100,7 +1089,7 @@
         document.getElementById("sub-start-date").value = new Date().toISOString().split("T")[0];
         document.getElementById("sub-duration").value = "12";
         recalculateAutoFields();
-        modalSelectedSubscriberIds = state.subscribers.length > 0 ? [state.subscribers[0].id] : [];
+        modalSelectedSubscriberIds = state.subscribers.length === 1 ? [state.subscribers[0].id] : [];
       }
       renderModalSubscribersSelector();
       document.getElementById("subscription-modal").classList.remove("hidden");
@@ -1111,26 +1100,38 @@
     function renderModalSubscribersSelector() {
       const container = document.getElementById("modal-subscribers-selector");
       if (state.subscribers.length === 0) {
-        container.innerHTML = `<span class="text-xs text-slate-400 italic">Aucun lecteur. Cliquez sur "+ Ajouter" ci-dessus.</span>`;
+        container.innerHTML = `<span class="text-xs text-slate-400 italic">Aucun lecteur. Cliquez sur "+ Ajouter une personne" à droite.</span>`;
         return;
       }
       container.innerHTML = state.subscribers.map(p => {
         const sel = modalSelectedSubscriberIds.includes(p.id);
         const c = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
-        return `<button type="button" onclick="toggleModalSubscriber('${p.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${sel ? "bg-indigo-600 text-white border-indigo-600 shadow-xs" : `${c.bg} ${c.text} ${c.border} opacity-75 hover:opacity-100`}"><span class="w-3 h-3 rounded-full ${sel ? "bg-white" : c.dot}"></span><span>${escapeHtml(p.name)}</span></button>`;
+        return `<button type="button" onclick="toggleModalSubscriber('${p.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${sel ? "bg-indigo-600 text-white border-indigo-600 shadow-xs" : `${c.bg} ${c.text} ${c.border} opacity-75 hover:opacity-100`}"><span class="w-2.5 h-2.5 rounded-full ${sel ? "bg-white" : c.dot}"></span><span>${escapeHtml(p.name)}</span></button>`;
       }).join("");
     }
 
     function toggleModalSubscriber(id) {
-      modalSelectedSubscriberIds = modalSelectedSubscriberIds.includes(id) ? modalSelectedSubscriberIds.filter(x => x !== id) : [...modalSelectedSubscriberIds, id];
+      modalSelectedSubscriberIds = modalSelectedSubscriberIds.includes(id)
+        ? modalSelectedSubscriberIds.filter(x => x !== id)
+        : [...modalSelectedSubscriberIds, id];
       renderModalSubscribersSelector();
     }
 
-    function quickAddSubscriberInline() { document.getElementById("inline-new-subscriber").classList.toggle("hidden"); }
+    function quickAddSubscriberInline() {
+      const box = document.getElementById("inline-new-subscriber");
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) document.getElementById("inline-sub-name").focus();
+    }
+
     async function confirmInlineSubscriber() {
       const name = document.getElementById("inline-sub-name").value.trim();
       if (!name) return;
-      const p = { id: "pers_" + Date.now(), name, role: document.getElementById("inline-sub-age").value.trim(), colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length };
+      const p = {
+        id: "pers_" + Date.now(),
+        name,
+        role: document.getElementById("inline-sub-age").value.trim(),
+        colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length
+      };
       state.subscribers.push(p);
       modalSelectedSubscriberIds.push(p.id);
       document.getElementById("inline-sub-name").value = "";
@@ -1175,6 +1176,7 @@
       const d = new Date(sub.endDate + "T00:00:00");
       d.setFullYear(d.getFullYear() + 1);
       sub.endDate = d.toISOString().split("T")[0];
+      sub.totalIssues = estimateTotalIssues(sub.startDate, sub.endDate, sub.frequency);
       await persistState();
       renderApp();
       showToast(`${sub.title} prolongé d'1 an 🎉`);
@@ -1194,10 +1196,13 @@
 
     function renderSubscribersModalList() {
       const container = document.getElementById("subscribers-list");
-      if (state.subscribers.length === 0) { container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Aucun lecteur.</p>`; return; }
+      if (state.subscribers.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Aucun lecteur ajouté.</p>`;
+        return;
+      }
       container.innerHTML = state.subscribers.map(p => {
         const c = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
-        return `<div class="flex items-center justify-between p-2.5 rounded-2xl border border-slate-200 bg-slate-50"><div class="flex items-center gap-2.5"><span class="w-3 h-3 rounded-full ${c.dot}"></span><span class="text-sm font-semibold text-slate-800">${escapeHtml(p.name)}</span></div><button onclick="removeSubscriber('${p.id}')" class="p-1.5 text-slate-400 hover:text-rose-600">🗑️</button></div>`;
+        return `<div class="flex items-center justify-between p-2.5 rounded-2xl border border-slate-200 bg-slate-50"><div class="flex items-center gap-2.5"><span class="w-3 h-3 rounded-full ${c.dot}"></span><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(p.name)}</p>${p.role ? `<p class="text-xs text-slate-500">${escapeHtml(p.role)}</p>` : ""}</div></div><button onclick="removeSubscriber('${p.id}')" class="p-1.5 text-slate-400 hover:text-rose-600">🗑️</button></div>`;
       }).join("");
     }
 
@@ -1205,7 +1210,12 @@
       event.preventDefault();
       const name = document.getElementById("new-subscriber-name").value.trim();
       if (!name) return;
-      state.subscribers.push({ id: "pers_" + Date.now(), name, role: document.getElementById("new-subscriber-role").value.trim(), colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length });
+      state.subscribers.push({
+        id: "pers_" + Date.now(),
+        name,
+        role: document.getElementById("new-subscriber-role").value.trim(),
+        colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length
+      });
       document.getElementById("new-subscriber-name").value = "";
       document.getElementById("new-subscriber-role").value = "";
       await persistState();
@@ -1216,16 +1226,21 @@
     async function removeSubscriber(id) {
       state.subscribers = state.subscribers.filter(p => p.id !== id);
       state.subscriptions.forEach(s => { s.subscriberIds = (s.subscriberIds || []).filter(pid => pid !== id); });
+      if (state.selectedSubscriberFilter === id) state.selectedSubscriberFilter = "all";
       await persistState();
       renderSubscribersModalList();
       renderApp();
     }
 
     function toggleDataMenu(force = false) { document.getElementById("data-menu").classList.toggle("hidden", force); }
+
     function exportData() {
       toggleDataMenu(true);
       const blob = new Blob([JSON.stringify({ subscribers: state.subscribers, subscriptions: state.subscriptions }, null, 2)], { type: "application/json" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "abonnements-presse.json"; a.click();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `abonnements-presse-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
       showToast("Export JSON réussi");
     }
 
@@ -1244,7 +1259,9 @@
             renderApp();
             showToast("Import réussi");
           }
-        } catch { alert("Fichiers JSON invalide."); }
+        } catch {
+          alert("Fichier JSON invalide.");
+        }
       };
       reader.readAsText(f);
       e.target.value = "";
@@ -1254,7 +1271,8 @@
       const t = document.getElementById("toast");
       document.getElementById("toast-message").textContent = msg;
       t.classList.remove("translate-y-20", "opacity-0");
-      setTimeout(() => t.classList.add("translate-y-20", "opacity-0"), 2800);
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => t.classList.add("translate-y-20", "opacity-0"), 2800);
     }
 
     function escapeHtml(str) {
