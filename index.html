@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Suivi des Abonnements — Magazines & Journaux</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -15,6 +15,7 @@
       font-family: 'Inter', sans-serif;
       background-color: #f8fafc;
       color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
     }
     .progress-bar {
       transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -29,20 +30,13 @@
     .modal-backdrop {
       backdrop-filter: blur(4px);
     }
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    /* Masquer scrollbar sur mobile pour les barres horizontales de filtres */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
     }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
@@ -58,43 +52,43 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
           </svg>
         </div>
-        <h1 class="text-xl font-extrabold tracking-tight">Espace Abonnements Privé</h1>
-        <p class="text-xs text-indigo-100 mt-1">Accès protégé • Données chiffrées en local</p>
+        <h1 class="text-xl font-extrabold tracking-tight">Espace Abonnements Partagé</h1>
+        <p class="text-xs text-indigo-100 mt-1">Accès sécurisé • Vue commune pour la famille</p>
       </div>
 
       <!-- Onglets méthode d'accès -->
       <div class="px-6 pt-5">
         <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-          <button type="button" id="tab-local" onclick="switchAuthTab('local')" class="py-2 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition">
-            🔑 Mot de passe local
+          <button type="button" id="tab-local" onclick="switchAuthTab('local')" class="py-2.5 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition">
+            🔑 Code / Mot de passe
           </button>
-          <button type="button" id="tab-sso" onclick="switchAuthTab('sso')" class="py-2 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          <button type="button" id="tab-sso" onclick="switchAuthTab('sso')" class="py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition">
             🌐 Google / Apple
           </button>
         </div>
       </div>
 
-      <!-- Message d'erreur ou statut -->
+      <!-- Message d'alerte -->
       <div id="auth-alert" class="hidden mx-6 mt-4 px-3.5 py-2.5 rounded-xl text-xs font-medium border"></div>
 
       <!-- Panneau 1 : Authentification Locale -->
       <div id="panel-local" class="p-6 space-y-4">
         <div id="local-setup-info" class="hidden bg-indigo-50 border border-indigo-100 rounded-xl p-3 text-xs text-indigo-900">
-          <p class="font-bold">✨ Première utilisation détectée</p>
-          <p class="mt-0.5 text-indigo-700">Choisissez un mot de passe (ou code PIN de 4 caractères min.) pour chiffrer vos abonnements sur cet appareil.</p>
+          <p class="font-bold">✨ Première configuration</p>
+          <p class="mt-0.5 text-indigo-700">Définissez un mot de passe ou code PIN (4 caractères min.) pour protéger l'accès à vos abonnements.</p>
         </div>
 
-        <form id="local-auth-form" onsubmit="handleLocalAuth(event)" class="space-y-3.5">
+        <form id="local-auth-form" onsubmit="handleLocalAuth(event)" class="space-y-4">
           <div>
             <label for="local-password" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               <span id="local-password-label">Mot de passe</span>
             </label>
             <div class="relative">
               <input type="password" id="local-password" required minlength="4" autocomplete="current-password"
-                placeholder="Entrez votre mot de passe..."
-                class="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
+                placeholder="Votre mot de passe..."
+                class="w-full pl-3.5 pr-10 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
               <button type="button" onclick="togglePasswordVisibility()" title="Afficher/Masquer"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -104,7 +98,7 @@
           </div>
 
           <button type="submit" id="local-submit-btn"
-            class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2">
+            class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md transition flex items-center justify-center gap-2">
             <span id="local-submit-text">Déverrouiller</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -112,18 +106,18 @@
           </button>
         </form>
 
-        <!-- Biométrie WebAuthn si configurée -->
+        <!-- Biométrie WebAuthn -->
         <div id="biometric-section" class="hidden pt-1">
           <button type="button" onclick="unlockWithBiometrics()"
-            class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition flex items-center justify-center gap-2">
-            <span>👆 Déverrouiller avec Touch ID / Face ID / Windows Hello</span>
+            class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition flex items-center justify-center gap-2">
+            <span>👆 Déverrouiller avec Touch ID / Face ID</span>
           </button>
         </div>
 
         <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-          <span>Aucune donnée visible sans accès</span>
-          <button type="button" onclick="resetLocalVault()" class="text-slate-500 hover:text-rose-600 underline transition">
-            Réinitialiser le coffre
+          <span>Accès partagé famille</span>
+          <button type="button" onclick="resetLocalVault()" class="text-slate-500 hover:text-rose-600 underline transition py-1">
+            Réinitialiser
           </button>
         </div>
       </div>
@@ -131,11 +125,10 @@
       <!-- Panneau 2 : Google & Apple Sign-In -->
       <div id="panel-sso" class="hidden p-6 space-y-4">
         <div id="sso-buttons-container" class="space-y-3">
-          <!-- Bouton Google -->
           <div id="google-btn-wrapper" class="flex flex-col items-center">
             <div id="g_id_signin" class="w-full flex justify-center"></div>
             <button type="button" id="google-fallback-btn" onclick="triggerGoogleSignIn()"
-              class="w-full py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2.5">
+              class="w-full py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm shadow-xs transition flex items-center justify-center gap-2.5">
               <svg class="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24z"/>
@@ -146,9 +139,8 @@
             </button>
           </div>
 
-          <!-- Bouton Apple -->
           <button type="button" onclick="triggerAppleSignIn()"
-            class="w-full py-2.5 px-4 rounded-xl bg-black hover:bg-neutral-900 text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2.5">
+            class="w-full py-3 px-4 rounded-xl bg-black hover:bg-neutral-900 text-white font-semibold text-sm shadow-xs transition flex items-center justify-center gap-2.5">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
               <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
             </svg>
@@ -156,33 +148,31 @@
           </button>
         </div>
 
-        <!-- Accordéon configuration OAuth Client IDs -->
         <div class="border border-slate-200 rounded-xl overflow-hidden">
           <button type="button" onclick="toggleSsoConfig()"
             class="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-left text-xs font-semibold text-slate-700 flex items-center justify-between">
-            <span>⚙️ Configurer Google / Apple & Emails autorisés</span>
+            <span>⚙️ Configuration Google / Apple SSO</span>
             <span id="sso-config-chevron">▾</span>
           </button>
           <div id="sso-config-body" class="hidden p-3.5 space-y-3 bg-white border-t border-slate-200 text-xs">
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Google Client ID (OAuth 2.0)</label>
-              <input type="text" id="cfg-google-client-id" placeholder="123456789-xxxx.apps.googleusercontent.com"
-                class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <label class="block font-semibold text-slate-700 mb-1">Google Client ID</label>
+              <input type="text" id="cfg-google-client-id" placeholder="xxxx.apps.googleusercontent.com"
+                class="w-full px-2.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Apple Services ID (optionnel)</label>
-              <input type="text" id="cfg-apple-client-id" placeholder="com.votredomaine.abonnements"
-                class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <label class="block font-semibold text-slate-700 mb-1">Apple Services ID</label>
+              <input type="text" id="cfg-apple-client-id" placeholder="com.domaine.app"
+                class="w-full px-2.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Emails autorisés (séparés par une virgule)</label>
+              <label class="block font-semibold text-slate-700 mb-1">Emails autorisés (séparés par virgule)</label>
               <input type="text" id="cfg-allowed-emails" placeholder="vous@gmail.com, conjoint@icloud.com"
-                class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
-              <p class="text-[10px] text-slate-400 mt-1">Seuls ces comptes pourront ouvrir l'application après connexion Google/Apple.</p>
+                class="w-full px-2.5 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
             <button type="button" onclick="saveSsoConfig()"
-              class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
-              Enregistrer la configuration SSO
+              class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+              Enregistrer
             </button>
           </div>
         </div>
@@ -190,58 +180,46 @@
     </div>
   </div>
 
-  <!-- ==================== APPLICATION PRINCIPALE (MASQUÉE TANT QUE VERROUILLÉE) ==================== -->
+  <!-- ==================== APPLICATION PRINCIPALE ==================== -->
   <div id="app-shell" class="hidden min-h-screen flex flex-col">
 
-    <!-- En-tête -->
+    <!-- En-tête responsive -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
             </svg>
           </div>
-          <div>
-            <h1 class="text-lg font-bold tracking-tight text-slate-900 leading-tight">Mes Abonnements Presse</h1>
-            <p class="text-xs text-slate-500 hidden sm:block">Suivi des magazines enfants, journaux et lecteurs de la famille</p>
+          <div class="min-w-0">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 truncate">Abonnements Presse</h1>
+            <p class="text-[11px] text-slate-500 truncate hidden sm:block">Vue partagée famille</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Badge session -->
-          <span id="session-badge" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span id="session-user-label">Session locale</span>
-          </span>
-
-          <!-- Bouton Biométrie (si local et compatible) -->
-          <button id="setup-biometric-btn" onclick="registerBiometrics()" title="Activer Touch ID / Face ID / Windows Hello"
-            class="hidden px-2.5 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition items-center gap-1.5">
-            <span>👆 Biométrie</span>
-          </button>
-
-          <!-- Bouton Gérer les abonnés -->
-          <button onclick="openSubscribersModal()" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
-            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <div class="flex items-center gap-1.5 sm:gap-2.5">
+          <!-- Bouton Abonnés -->
+          <button onclick="openSubscribersModal()" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+            <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            <span class="hidden sm:inline">Abonnés</span>
-            <span id="header-subscriber-count" class="bg-white text-slate-700 text-xs font-semibold px-1.5 py-0.5 rounded-md border border-slate-200">0</span>
+            <span class="hidden md:inline">Lecteurs</span>
+            <span id="header-subscriber-count" class="bg-white text-slate-700 text-[11px] font-bold px-1.5 py-0.5 rounded-md border border-slate-200">0</span>
           </button>
 
-          <!-- Export / Import -->
+          <!-- Menu Données (Export / Import / Exemples) -->
           <div class="relative">
-            <button onclick="toggleDataMenu()" title="Sauvegarder ou restaurer les données" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition">
+            <button onclick="toggleDataMenu()" title="Sauvegarder / Restaurer" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
               </svg>
             </button>
-            <div id="data-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-40">
-              <button onclick="exportData()" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+            <div id="data-menu" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-40">
+              <button onclick="exportData()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2">
                 <span>📥 Exporter en JSON</span>
               </button>
-              <label class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer">
+              <label class="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer">
                 <span>📤 Importer un JSON</span>
                 <input type="file" accept=".json" onchange="importData(event)" class="hidden" />
               </label>
@@ -252,16 +230,16 @@
             </div>
           </div>
 
-          <!-- Bouton Ajouter -->
-          <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <!-- Bouton Nouvel Abonnement -->
+          <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
             <span>Ajouter</span>
           </button>
 
           <!-- Bouton Verrouiller -->
-          <button onclick="lockApp()" title="Verrouiller l'accès" class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
+          <button onclick="lockApp()" title="Verrouiller" class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
@@ -271,117 +249,115 @@
     </header>
 
     <!-- Contenu principal -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5">
 
-      <!-- Indicateurs clés (KPI) -->
-      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+      <!-- KPI / Indicateurs -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Abonnements actifs</span>
-            <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">✓</span>
+            <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400">Actifs</span>
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs sm:text-sm font-bold">✓</span>
           </div>
-          <div class="mt-2 flex items-baseline gap-2">
-            <span id="kpi-active" class="text-2xl font-extrabold text-slate-900">0</span>
-            <span id="kpi-total" class="text-xs text-slate-500">sur 0 au total</span>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-active" class="text-xl sm:text-2xl font-extrabold text-slate-900">0</span>
+            <span id="kpi-total" class="text-[11px] text-slate-500">/ 0 total</span>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Expirent bientôt</span>
-            <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">⏳</span>
+            <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400">Fin proche</span>
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs sm:text-sm font-bold">⏳</span>
           </div>
-          <div class="mt-2 flex items-baseline gap-2">
-            <span id="kpi-expiring" class="text-2xl font-extrabold text-amber-600">0</span>
-            <span class="text-xs text-slate-500">dans les 45 jours</span>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-expiring" class="text-xl sm:text-2xl font-extrabold text-amber-600">0</span>
+            <span class="text-[11px] text-slate-500">&lt; 45 jours</span>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Numéros / mois</span>
-            <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">📬</span>
+            <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400">Par mois</span>
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs sm:text-sm font-bold">📬</span>
           </div>
-          <div class="mt-2 flex items-baseline gap-2">
-            <span id="kpi-monthly-issues" class="text-2xl font-extrabold text-slate-900">0</span>
-            <span class="text-xs text-slate-500">en moyenne</span>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-monthly-issues" class="text-xl sm:text-2xl font-extrabold text-slate-900">0</span>
+            <span class="text-[11px] text-slate-500">numéros</span>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Budget annuel</span>
-            <span class="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center text-sm font-bold">€</span>
+            <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400">Budget an</span>
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center text-xs sm:text-sm font-bold">€</span>
           </div>
-          <div class="mt-2 flex items-baseline gap-2">
-            <span id="kpi-budget" class="text-2xl font-extrabold text-slate-900">0 €</span>
-            <span class="text-xs text-slate-500">abonnements en cours</span>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-budget" class="text-xl sm:text-2xl font-extrabold text-slate-900">0 €</span>
+            <span class="text-[11px] text-slate-500">estimé</span>
           </div>
         </div>
       </section>
 
-      <!-- Barre de filtres dynamiques -->
-      <section class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <!-- Filtre par personne abonnée -->
-          <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0" id="subscriber-filter-bar">
-            <!-- Généré dynamiquement -->
+      <!-- Filtres & Recherche (Responsive) -->
+      <section class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+        <!-- Barre des lecteurs cliquables (scrollable sur mobile) -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="subscriber-filter-bar">
+          <!-- Généré dynamiquement -->
+        </div>
+
+        <!-- Champs de recherche, filtres et tris -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="search-input" oninput="renderApp()" placeholder="Rechercher un magazine..."
+              class="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
           </div>
 
-          <!-- Recherche & Tri -->
-          <div class="flex flex-wrap items-center gap-2">
-            <div class="relative flex-1 sm:flex-initial">
-              <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
-              <input type="text" id="search-input" oninput="renderApp()" placeholder="Rechercher un titre..."
-                class="w-full sm:w-52 pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
-            </div>
+          <select id="status-filter" onchange="renderApp()" class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500">
+            <option value="all">Tous les statuts</option>
+            <option value="active">Actifs uniquement</option>
+            <option value="expiring">Expire bientôt</option>
+            <option value="expired">Expirés</option>
+          </select>
 
-            <select id="status-filter" onchange="renderApp()" class="text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:border-indigo-500">
-              <option value="all">Tous les statuts</option>
-              <option value="active">Actifs uniquement</option>
-              <option value="expiring">Expire bientôt</option>
-              <option value="expired">Expirés</option>
-            </select>
+          <select id="category-filter" onchange="renderApp()" class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500">
+            <option value="all">Toutes catégories</option>
+            <option value="Jeunesse">Jeunesse / Enfants</option>
+            <option value="Actualités">Actualités / Journaux</option>
+            <option value="Culture & Sciences">Culture & Sciences</option>
+            <option value="Loisirs & Sport">Loisirs & Sport</option>
+          </select>
 
-            <select id="category-filter" onchange="renderApp()" class="text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:border-indigo-500">
-              <option value="all">Toutes catégories</option>
-              <option value="Jeunesse">Jeunesse / Enfants</option>
-              <option value="Actualités">Actualités / Journaux</option>
-              <option value="Culture & Sciences">Culture & Sciences</option>
-              <option value="Loisirs & Sport">Loisirs & Sport</option>
-            </select>
-
-            <select id="sort-select" onchange="renderApp()" class="text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:border-indigo-500">
-              <option value="end-asc">Fin la plus proche</option>
-              <option value="end-desc">Fin la plus lointaine</option>
-              <option value="name-asc">Nom (A → Z)</option>
-              <option value="start-desc">Plus récents</option>
-            </select>
-          </div>
+          <select id="sort-select" onchange="renderApp()" class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500">
+            <option value="end-asc">Fin la plus proche</option>
+            <option value="end-desc">Fin la plus lointaine</option>
+            <option value="name-asc">Nom (A → Z)</option>
+            <option value="start-desc">Plus récents</option>
+          </select>
         </div>
       </section>
 
       <!-- Grille des abonnements -->
-      <section id="subscriptions-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <section id="subscriptions-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
         <!-- Cartes générées dynamiquement -->
       </section>
 
       <!-- État vide -->
-      <div id="empty-state" class="hidden bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
+      <div id="empty-state" class="hidden bg-white rounded-2xl border border-dashed border-slate-300 p-8 sm:p-12 text-center">
         <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4 text-2xl">
           📰
         </div>
         <h3 class="text-base font-bold text-slate-900">Aucun abonnement trouvé</h3>
         <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-          Ajoutez votre premier magazine enfant ou journal : la fréquence, la catégorie et la date de fin se rempliront automatiquement.
+          Ajoutez un abonnement : le catalogue de plus de 60 magazines pré-remplira automatiquement la fréquence et les dates.
         </p>
-        <div class="mt-5 flex items-center justify-center gap-3">
-          <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">
+        <div class="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button onclick="openSubscriptionModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">
             <span>+ Nouvel abonnement</span>
           </button>
-          <button onclick="loadDemoData()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+          <button onclick="loadDemoData()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
             <span>✨ Charger des exemples</span>
           </button>
         </div>
@@ -389,46 +365,45 @@
     </main>
   </div>
 
-  <!-- ==================== MODALE : AJOUTER / MODIFIER UN ABONNEMENT ==================== -->
-  <div id="subscription-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl overflow-hidden my-auto">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+  <!-- ==================== MODALE : AJOUT / MODIFICATION ==================== -->
+  <div id="subscription-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 modal-backdrop flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden my-auto">
+      <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
         <div>
-          <h2 id="sub-modal-title" class="text-lg font-bold text-slate-900">Nouvel abonnement</h2>
-          <p class="text-xs text-slate-500">Sélectionnez un magazine connu pour pré-remplir automatiquement ses caractéristiques.</p>
+          <h2 id="sub-modal-title" class="text-base sm:text-lg font-bold text-slate-900">Nouvel abonnement</h2>
+          <p class="text-xs text-slate-500">Sélectionnez un titre pour auto-remplir la fréquence.</p>
         </div>
-        <button onclick="closeSubscriptionModal()" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200/60 transition">
+        <button onclick="closeSubscriptionModal()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200/60 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
 
-      <form id="subscription-form" onsubmit="saveSubscription(event)" class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
+      <form id="subscription-form" onsubmit="saveSubscription(event)" class="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
         <input type="hidden" id="sub-id" />
 
-        <!-- Sélection rapide depuis le catalogue -->
-        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3.5">
+        <!-- Pré-remplissage rapide catalogue -->
+        <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5">
           <label class="block text-xs font-bold uppercase tracking-wider text-indigo-800 mb-1.5">
-            ⚡ Pré-remplissage rapide (Catalogue Presse & Jeunesse)
+            ⚡ Catalogue Presse & Jeunesse (60+ titres)
           </label>
-          <select id="catalog-preset" onchange="applyCatalogPreset(this.value)" class="w-full bg-white border border-indigo-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="">— Choisir un titre dans la liste ou saisir librement ci-dessous —</option>
+          <select id="catalog-preset" onchange="applyCatalogPreset(this.value)" class="w-full bg-white border border-indigo-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">— Choisir un magazine ou saisir ci-dessous —</option>
           </select>
         </div>
 
-        <!-- Nom du magazine & Catégorie -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Titre du magazine ou journal *</label>
-            <input type="text" id="sub-title" list="magazines-datalist" oninput="onTitleInput(this.value)" required placeholder="Ex: Pomme d'Api, Astrapi, Le Monde..."
-              class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Titre *</label>
+            <input type="text" id="sub-title" list="magazines-datalist" oninput="onTitleInput(this.value)" required placeholder="Nom du magazine..."
+              class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
             <datalist id="magazines-datalist"></datalist>
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Catégorie</label>
-            <select id="sub-category" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-indigo-500">
+            <select id="sub-category" class="w-full px-3 py-2.5 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-indigo-500">
               <option value="Jeunesse">Jeunesse / Enfants</option>
               <option value="Actualités">Actualités / Journaux</option>
               <option value="Culture & Sciences">Culture & Sciences</option>
@@ -437,198 +412,142 @@
           </div>
         </div>
 
-        <!-- Fréquence & Durée -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Fréquence de parution *</label>
-            <select id="sub-frequency" onchange="recalculateAutoFields()" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-indigo-500">
-              <option value="daily">Quotidien (6-7 / sem.)</option>
-              <option value="weekly">Hebdomadaire (1 / sem.)</option>
-              <option value="biweekly">Bimensuel (2 / mois)</option>
-              <option value="monthly" selected>Mensuel (1 / mois)</option>
-              <option value="bimonthly">Bimestriel (tous les 2 mois)</option>
-              <option value="quarterly">Trimestriel (4 / an)</option>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Fréquence *</label>
+            <select id="sub-frequency" onchange="recalculateAutoFields()" class="w-full px-3 py-2.5 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-indigo-500">
+              <option value="daily">Quotidien</option>
+              <option value="weekly">Hebdomadaire</option>
+              <option value="biweekly">Bimensuel</option>
+              <option value="monthly" selected>Mensuel</option>
+              <option value="bimonthly">Bimestriel</option>
+              <option value="quarterly">Trimestriel</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Durée d'abonnement</label>
-            <select id="sub-duration" onchange="recalculateAutoFields()" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Durée</label>
+            <select id="sub-duration" onchange="recalculateAutoFields()" class="w-full px-3 py-2.5 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-indigo-500">
               <option value="3">3 mois</option>
               <option value="6">6 mois</option>
               <option value="12" selected>1 an (12 mois)</option>
               <option value="24">2 ans (24 mois)</option>
-              <option value="custom">Date de fin manuelle</option>
+              <option value="custom">Manuel</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Prix payé (€)</label>
-            <input type="number" step="0.01" min="0" id="sub-price" placeholder="Ex: 64.00"
-              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500" />
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Prix (€)</label>
+            <input type="number" step="0.01" min="0" id="sub-price" placeholder="Ex: 64"
+              class="w-full px-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500" />
           </div>
         </div>
 
-        <!-- Dates début & fin (calculées automatiquement) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Date de début *</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Date début *</label>
             <input type="date" id="sub-start-date" onchange="recalculateAutoFields()" required
-              class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500" />
+              class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500" />
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Date de fin *</span>
-              <span class="text-[10px] font-medium text-indigo-600 bg-indigo-50 px-1.5 rounded">Auto</span>
+              <span>Date fin *</span>
+              <span class="text-[10px] font-medium text-indigo-600 bg-indigo-50 px-1 rounded">Auto</span>
             </label>
             <input type="date" id="sub-end-date" oninput="onManualEndDate()" required
-              class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500" />
+              class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500" />
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Nb total numéros</span>
-              <span class="text-[10px] font-medium text-indigo-600 bg-indigo-50 px-1.5 rounded">Auto</span>
+              <span>Nb numéros</span>
+              <span class="text-[10px] font-medium text-indigo-600 bg-indigo-50 px-1 rounded">Auto</span>
             </label>
             <input type="number" min="1" id="sub-total-issues"
-              class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500" />
+              class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500" />
           </div>
         </div>
 
-        <!-- Personnes abonnées -->
+        <!-- Lecteurs -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-xs font-semibold text-slate-700">Personne(s) abonnée(s) / Lecteurs *</label>
+            <label class="block text-xs font-semibold text-slate-700">Lecteur(s) associé(s) *</label>
             <button type="button" onclick="quickAddSubscriberInline()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
-              + Ajouter une personne
+              + Ajouter
             </button>
           </div>
-          <div id="modal-subscribers-selector" class="flex flex-wrap gap-2">
-            <!-- Pastilles cliquables générées dynamiquement -->
-          </div>
+          <div id="modal-subscribers-selector" class="flex flex-wrap gap-2"></div>
           <div id="inline-new-subscriber" class="hidden mt-2.5 flex items-center gap-2">
-            <input type="text" id="inline-sub-name" placeholder="Prénom (ex: Lucas, Emma...)" class="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg" />
-            <input type="text" id="inline-sub-age" placeholder="Âge / Note (opt.)" class="w-32 px-3 py-1.5 text-sm border border-slate-300 rounded-lg" />
-            <button type="button" onclick="confirmInlineSubscriber()" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">OK</button>
+            <input type="text" id="inline-sub-name" placeholder="Prénom..." class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+            <input type="text" id="inline-sub-age" placeholder="Âge/Rôle" class="w-28 px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+            <button type="button" onclick="confirmInlineSubscriber()" class="px-3.5 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-xl">OK</button>
           </div>
         </div>
 
-        <!-- Notes & Reconduction -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-center">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">N° client / Note (optionnel)</label>
-            <input type="text" id="sub-notes" placeholder="Ex: Réf Bayard #84920, cadeau mamie..."
-              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500" />
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Note / Réf client</label>
+            <input type="text" id="sub-notes" placeholder="Ex: Réf client #8492"
+              class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500" />
           </div>
-          <div class="pt-4">
+          <div class="pt-2 sm:pt-6">
             <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
               <input type="checkbox" id="sub-auto-renew" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
-              <span class="text-sm text-slate-700 font-medium">Reconduction tacite automatique</span>
+              <span class="text-sm text-slate-700 font-medium">Reconduction tacite</span>
             </label>
           </div>
         </div>
 
-        <!-- Boutons validation -->
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-          <button type="button" onclick="closeSubscriptionModal()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeSubscriptionModal()" class="px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
             Annuler
           </button>
-          <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
-            Enregistrer l'abonnement
+          <button type="submit" class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
+            Enregistrer
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ==================== MODALE : GESTION DES ABONNÉS (PERSONNES) ==================== -->
+  <!-- ==================== MODALE : GESTION DES LECTEURS ==================== -->
   <div id="subscribers-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 modal-backdrop flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+    <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
+      <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
         <div>
-          <h2 class="text-lg font-bold text-slate-900">Personnes abonnées</h2>
-          <p class="text-xs text-slate-500">Gérez les membres de la famille associés aux magazines.</p>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Lecteurs de la famille</h2>
+          <p class="text-xs text-slate-500">Membres associés aux abonnements.</p>
         </div>
-        <button onclick="closeSubscribersModal()" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200/60">
+        <button onclick="closeSubscribersModal()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200/60">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
 
-      <div class="p-6 space-y-4">
+      <div class="p-5 sm:p-6 space-y-4">
         <form onsubmit="addSubscriberFromModal(event)" class="flex gap-2">
-          <input type="text" id="new-subscriber-name" required placeholder="Prénom..." class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500" />
-          <input type="text" id="new-subscriber-role" placeholder="Ex: 7 ans, Parent..." class="w-28 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500" />
-          <button type="submit" class="px-3.5 py-2 text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+          <input type="text" id="new-subscriber-name" required placeholder="Prénom..." class="flex-1 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500" />
+          <input type="text" id="new-subscriber-role" placeholder="Âge/Note" class="w-28 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500" />
+          <button type="submit" class="px-4 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">
             Ajouter
           </button>
         </form>
 
-        <div id="subscribers-list" class="space-y-2 max-h-64 overflow-y-auto">
-          <!-- Liste dynamique -->
-        </div>
+        <div id="subscribers-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
       </div>
     </div>
   </div>
 
   <!-- Toast notification -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5">
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5">
     <span id="toast-icon">✓</span>
     <span id="toast-message">Action effectuée</span>
   </div>
 
   <script>
-    // =========================================================================
-    // 1. CATALOGUE INTELLIGENT DE MAGAZINES & JOURNAUX (AUTO-REMPLISSAGE)
-    // =========================================================================
-    const MAGAZINE_CATALOG = [
-      // Jeunesse / Enfants
-      { title: "Popi", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "1-3 ans" },
-      { title: "Tralalire", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "2-5 ans" },
-      { title: "Babar", category: "Jeunesse", frequency: "monthly", duration: 12, price: 62, publisher: "Bayard Jeunesse", age: "2-5 ans" },
-      { title: "Pomme d'Api", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "3-7 ans" },
-      { title: "Histoires pour les petits", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "2-6 ans" },
-      { title: "Toupie", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "3-6 ans" },
-      { title: "Wakou", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "4-8 ans" },
-      { title: "Youpi, j'ai compris !", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "5-8 ans" },
-      { title: "Mes premiers J'aime lire", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "6-7 ans" },
-      { title: "J'aime lire", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Bayard Jeunesse", age: "7-10 ans" },
-      { title: "Astrapi", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard Jeunesse", age: "7-11 ans" },
-      { title: "Toboggan", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "6-9 ans" },
-      { title: "Wapiti", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "7-12 ans" },
-      { title: "Images Doc", category: "Jeunesse", frequency: "monthly", duration: 12, price: 72, publisher: "Bayard Jeunesse", age: "8-12 ans" },
-      { title: "Le Journal de Mickey", category: "Jeunesse", frequency: "weekly", duration: 12, price: 119, publisher: "Unique Heritage", age: "7-14 ans" },
-      { title: "Picsou Magazine", category: "Jeunesse", frequency: "bimonthly", duration: 12, price: 39, publisher: "Unique Heritage", age: "8-14 ans" },
-      { title: "J'aime lire Max", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard Jeunesse", age: "9-13 ans" },
-      { title: "Okapi", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard Jeunesse", age: "10-15 ans" },
-      { title: "Géo Ado", category: "Jeunesse", frequency: "monthly", duration: 12, price: 66, publisher: "Milan Presse", age: "10-15 ans" },
-      { title: "Science & Vie Junior", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 65, publisher: "Reworld Media", age: "11-17 ans" },
-      { title: "Science & Vie Découvertes", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 62, publisher: "Reworld Media", age: "7-12 ans" },
-      { title: "Le Petit Quotidien", category: "Actualités", frequency: "daily", duration: 12, price: 169, publisher: "PlayBac Presse", age: "6-10 ans" },
-      { title: "Mon Quotidien", category: "Actualités", frequency: "daily", duration: 12, price: 169, publisher: "PlayBac Presse", age: "10-14 ans" },
-      { title: "L'Actu", category: "Actualités", frequency: "daily", duration: 12, price: 169, publisher: "PlayBac Presse", age: "13-18 ans" },
-      { title: "1jour1actu", category: "Actualités", frequency: "weekly", duration: 12, price: 72, publisher: "Milan Presse", age: "8-12 ans" },
-      { title: "Phosphore", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard Jeunesse", age: "14+ ans" },
-
-      // Presse Adulte / Actualités / Culture
-      { title: "Le Monde", category: "Actualités", frequency: "daily", duration: 12, price: 299, publisher: "Groupe Le Monde" },
-      { title: "Le Figaro", category: "Actualités", frequency: "daily", duration: 12, price: 290, publisher: "Groupe Figaro" },
-      { title: "Libération", category: "Actualités", frequency: "daily", duration: 12, price: 260, publisher: "Altice" },
-      { title: "L'Équipe", category: "Loisirs & Sport", frequency: "daily", duration: 12, price: 280, publisher: "Groupe Amaury" },
-      { title: "Courrier International", category: "Actualités", frequency: "weekly", duration: 12, price: 139, publisher: "Groupe Le Monde" },
-      { title: "L'Obs / Le Nouvel Obs", category: "Actualités", frequency: "weekly", duration: 12, price: 129, publisher: "Groupe Le Monde" },
-      { title: "Le Point", category: "Actualités", frequency: "weekly", duration: 12, price: 135, publisher: "Artémis" },
-      { title: "Télérama", category: "Culture & Sciences", frequency: "weekly", duration: 12, price: 119, publisher: "Groupe Le Monde" },
-      { title: "Canard Enchaîné", category: "Actualités", frequency: "weekly", duration: 12, price: 75, publisher: "Éditions Maréchal" },
-      { title: "National Geographic France", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 54, publisher: "Prisma Media" },
-      { title: "Science & Vie", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 59, publisher: "Reworld Media" },
-      { title: "GEO", category: "Culture & Sciences", frequency: "monthly", duration: 12, price: 58, publisher: "Prisma Media" },
-      { title: "60 Millions de Consommateurs", category: "Actualités", frequency: "monthly", duration: 12, price: 52, publisher: "INC" },
-      { title: "Que Choisir", category: "Actualités", frequency: "monthly", duration: 12, price: 50, publisher: "UFC-Que Choisir" }
-    ];
-
+    let MAGAZINE_CATALOG = [];
     const FREQUENCY_META = {
       daily:     { label: "Quotidien",    perMonth: 26, perYear: 312, badgeClass: "bg-rose-50 text-rose-700 border-rose-200" },
       weekly:    { label: "Hebdomadaire", perMonth: 4.33, perYear: 52, badgeClass: "bg-amber-50 text-amber-700 border-amber-200" },
@@ -647,71 +566,55 @@
       { bg: "bg-violet-100", text: "text-violet-800", dot: "bg-violet-500", border: "border-violet-200" }
     ];
 
-    // =========================================================================
-    // 2. AUTHENTIFICATION & CHIFFREMENT LOCAL / SSO (GOOGLE & APPLE)
-    // =========================================================================
-    const VAULT_META_KEY = "presse_vault_meta_v2";
-    const VAULT_DATA_KEY = "presse_vault_data_v2";
-    const SSO_CONFIG_KEY = "presse_sso_config_v2";
-    const WEBAUTHN_KEY   = "presse_webauthn_v2";
+    const VAULT_META_KEY = "presse_vault_meta_v3";
+    const VAULT_DATA_KEY = "presse_vault_data_v3";
+    const SSO_CONFIG_KEY = "presse_sso_config_v3";
+    const WEBAUTHN_KEY   = "presse_webauthn_v3";
 
-    let sessionKeyMaterial = null; // Clé de chiffrement en mémoire uniquement
-    let currentAuthMethod = "local";
-    let currentUserDisplay = "Session locale";
-
-    let state = {
-      subscribers: [],
-      subscriptions: [],
-      selectedSubscriberFilter: "all"
-    };
+    let sessionKeyMaterial = null;
+    let state = { subscribers: [], subscriptions: [], selectedSubscriberFilter: "all" };
     let modalSelectedSubscriberIds = [];
 
-    function getVaultMeta() {
+    // Chargement dynamique du catalogue externe magazines.json
+    async function loadMagazineCatalog() {
       try {
-        return JSON.parse(localStorage.getItem(VAULT_META_KEY) || "null");
-      } catch {
-        return null;
+        const res = await fetch("magazines.json");
+        if (res.ok) {
+          const data = await res.json();
+          MAGAZINE_CATALOG = data.magazines || [];
+        }
+      } catch (e) {
+        console.warn("Chargement magazines.json externe indisponible, repli minimal.", e);
+        MAGAZINE_CATALOG = [
+          { title: "Pomme d'Api", category: "Jeunesse", frequency: "monthly", duration: 12, price: 69, publisher: "Bayard", age: "3-7 ans" },
+          { title: "Astrapi", category: "Jeunesse", frequency: "biweekly", duration: 12, price: 108, publisher: "Bayard", age: "7-11 ans" },
+          { title: "Le Monde", category: "Actualités", frequency: "daily", duration: 12, price: 299, publisher: "Le Monde" }
+        ];
       }
+      populateCatalogControls();
+    }
+
+    function getVaultMeta() {
+      try { return JSON.parse(localStorage.getItem(VAULT_META_KEY) || "null"); } catch { return null; }
     }
 
     function getSsoConfig() {
-      try {
-        return JSON.parse(localStorage.getItem(SSO_CONFIG_KEY) || '{"googleClientId":"","appleClientId":"","allowedEmails":""}');
-      } catch {
-        return { googleClientId: "", appleClientId: "", allowedEmails: "" };
-      }
+      try { return JSON.parse(localStorage.getItem(SSO_CONFIG_KEY) || '{"googleClientId":"","appleClientId":"","allowedEmails":""}'); } catch { return { googleClientId: "", appleClientId: "", allowedEmails: "" }; }
     }
 
-    // Dérivation de clé compatible WebCrypto + fallback sûr si file://
     async function deriveKeyAndVerify(password, saltHex) {
       if (window.crypto && window.crypto.subtle) {
         const enc = new TextEncoder();
-        const keyMaterial = await window.crypto.subtle.importKey(
-          "raw",
-          enc.encode(password),
-          { name: "PBKDF2" },
-          false,
-          ["deriveBits", "deriveKey"]
-        );
+        const keyMaterial = await window.crypto.subtle.importKey("raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveBits", "deriveKey"]);
         const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
-        const aesKey = await window.crypto.subtle.deriveKey(
-          { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
-          keyMaterial,
-          { name: "AES-GCM", length: 256 },
-          true,
-          ["encrypt", "decrypt"]
-        );
+        const aesKey = await window.crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
         const rawExport = await window.crypto.subtle.exportKey("raw", aesKey);
         const verifier = Array.from(new Uint8Array(rawExport)).slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
         return { aesKey, verifier, fallbackSecret: password + ":" + saltHex };
       } else {
-        // Fallback si ouvert en file:// sans contexte sécurisé HTTPS
         let hash = 2166136261;
         const input = password + ":" + saltHex;
-        for (let i = 0; i < input.length; i++) {
-          hash ^= input.charCodeAt(i);
-          hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-        }
+        for (let i = 0; i < input.length; i++) { hash ^= input.charCodeAt(i); hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24); }
         return { aesKey: null, verifier: (hash >>> 0).toString(16), fallbackSecret: input };
       }
     }
@@ -720,24 +623,14 @@
       const json = JSON.stringify(obj);
       if (sessionKeyMaterial && sessionKeyMaterial.aesKey && window.crypto && window.crypto.subtle) {
         const iv = window.crypto.getRandomValues(new Uint8Array(12));
-        const enc = new TextEncoder();
-        const cipher = await window.crypto.subtle.encrypt(
-          { name: "AES-GCM", iv },
-          sessionKeyMaterial.aesKey,
-          enc.encode(json)
-        );
-        const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, "0")).join("");
-        const cipherB64 = btoa(String.fromCharCode(...new Uint8Array(cipher)));
-        return JSON.stringify({ v: 2, alg: "AES-GCM", iv: ivHex, data: cipherB64 });
+        const cipher = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, sessionKeyMaterial.aesKey, new TextEncoder().encode(json));
+        return JSON.stringify({ v: 3, alg: "AES-GCM", iv: Array.from(iv).map(b => b.toString(16).padStart(2, "0")).join(""), data: btoa(String.fromCharCode(...new Uint8Array(cipher))) });
       } else {
-        // Fallback XOR + Base64 UTF-8
         const secret = (sessionKeyMaterial && sessionKeyMaterial.fallbackSecret) || "default-key";
         const utf8 = unescape(encodeURIComponent(json));
         let out = "";
-        for (let i = 0; i < utf8.length; i++) {
-          out += String.fromCharCode(utf8.charCodeAt(i) ^ secret.charCodeAt(i % secret.length));
-        }
-        return JSON.stringify({ v: 2, alg: "XOR-B64", data: btoa(out) });
+        for (let i = 0; i < utf8.length; i++) { out += String.fromCharCode(utf8.charCodeAt(i) ^ secret.charCodeAt(i % secret.length)); }
+        return JSON.stringify({ v: 3, alg: "XOR-B64", data: btoa(out) });
       }
     }
 
@@ -746,26 +639,20 @@
       const parsed = JSON.parse(rawStr);
       if (parsed.alg === "AES-GCM" && sessionKeyMaterial && sessionKeyMaterial.aesKey && window.crypto && window.crypto.subtle) {
         const iv = new Uint8Array(parsed.iv.match(/.{1,2}/g).map(b => parseInt(b, 16)));
-        const bytes = Uint8Array.from(atob(parsed.data), c => c.charCodeAt(0));
-        const plainBuf = await window.crypto.subtle.decrypt(
-          { name: "AES-GCM", iv },
-          sessionKeyMaterial.aesKey,
-          bytes
-        );
+        const plainBuf = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv }, sessionKeyMaterial.aesKey, Uint8Array.from(atob(parsed.data), c => c.charCodeAt(0)));
         return JSON.parse(new TextDecoder().decode(plainBuf));
       } else if (parsed.alg === "XOR-B64") {
         const secret = (sessionKeyMaterial && sessionKeyMaterial.fallbackSecret) || "default-key";
         const bin = atob(parsed.data);
         let utf8 = "";
-        for (let i = 0; i < bin.length; i++) {
-          utf8 += String.fromCharCode(bin.charCodeAt(i) ^ secret.charCodeAt(i % secret.length));
-        }
+        for (let i = 0; i < bin.length; i++) { utf8 += String.fromCharCode(bin.charCodeAt(i) ^ secret.charCodeAt(i % secret.length)); }
         return JSON.parse(decodeURIComponent(escape(utf8)));
       }
       return null;
     }
 
     function initAuthGate() {
+      loadMagazineCatalog();
       const meta = getVaultMeta();
       const setupInfo = document.getElementById("local-setup-info");
       const submitText = document.getElementById("local-submit-text");
@@ -773,7 +660,7 @@
 
       if (!meta) {
         setupInfo.classList.remove("hidden");
-        label.textContent = "Créer votre mot de passe maître";
+        label.textContent = "Créer un mot de passe maître";
         submitText.textContent = "Créer et accéder";
       } else {
         setupInfo.classList.add("hidden");
@@ -781,12 +668,10 @@
         submitText.textContent = "Déverrouiller";
       }
 
-      // Biométrie disponible ?
       if (localStorage.getItem(WEBAUTHN_KEY) && window.PublicKeyCredential) {
         document.getElementById("biometric-section").classList.remove("hidden");
       }
 
-      // Pré-remplir config SSO
       const sso = getSsoConfig();
       document.getElementById("cfg-google-client-id").value = sso.googleClientId || "";
       document.getElementById("cfg-apple-client-id").value = sso.appleClientId || "";
@@ -794,38 +679,31 @@
     }
 
     function switchAuthTab(tab) {
-      hideAuthAlert();
+      document.getElementById("auth-alert").classList.add("hidden");
       const tabLocal = document.getElementById("tab-local");
       const tabSso = document.getElementById("tab-sso");
       const panelLocal = document.getElementById("panel-local");
       const panelSso = document.getElementById("panel-sso");
 
       if (tab === "local") {
-        tabLocal.className = "py-2 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition";
-        tabSso.className = "py-2 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        tabLocal.className = "py-2.5 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition";
+        tabSso.className = "py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition";
         panelLocal.classList.remove("hidden");
         panelSso.classList.add("hidden");
       } else {
-        tabSso.className = "py-2 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition";
-        tabLocal.className = "py-2 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        tabSso.className = "py-2.5 px-3 rounded-lg bg-white text-indigo-700 shadow-sm transition";
+        tabLocal.className = "py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 transition";
         panelSso.classList.remove("hidden");
         panelLocal.classList.add("hidden");
         initGoogleButtonIfConfigured();
       }
     }
 
-    function showAuthAlert(message, type = "error") {
+    function showAuthAlert(msg, type = "error") {
       const el = document.getElementById("auth-alert");
-      el.textContent = message;
-      el.className = "mx-6 mt-4 px-3.5 py-2.5 rounded-xl text-xs font-medium border " +
-        (type === "error"
-          ? "bg-rose-50 text-rose-700 border-rose-200"
-          : "bg-emerald-50 text-emerald-700 border-emerald-200");
+      el.textContent = msg;
+      el.className = "mx-6 mt-4 px-3.5 py-2.5 rounded-xl text-xs font-medium border " + (type === "error" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-emerald-50 text-emerald-700 border-emerald-200");
       el.classList.remove("hidden");
-    }
-
-    function hideAuthAlert() {
-      document.getElementById("auth-alert").classList.add("hidden");
     }
 
     function togglePasswordVisibility() {
@@ -835,196 +713,79 @@
 
     async function handleLocalAuth(event) {
       event.preventDefault();
-      hideAuthAlert();
-
+      document.getElementById("auth-alert").classList.add("hidden");
       const pwd = document.getElementById("local-password").value.trim();
-      if (pwd.length < 4) {
-        showAuthAlert("Veuillez saisir au moins 4 caractères.");
-        return;
-      }
+      if (pwd.length < 4) { showAuthAlert("4 caractères minimum requis."); return; }
 
-      const btn = document.getElementById("local-submit-btn");
-      btn.disabled = true;
-      btn.classList.add("opacity-70");
-
-      try {
-        let meta = getVaultMeta();
-        if (!meta) {
-          // Création initiale du coffre
-          const saltBytes = window.crypto
-            ? window.crypto.getRandomValues(new Uint8Array(16))
-            : Array.from({ length: 16 }, () => Math.floor(Math.random() * 256));
-          const saltHex = Array.from(saltBytes).map(b => b.toString(16).padStart(2, "0")).join("");
-          const derived = await deriveKeyAndVerify(pwd, saltHex);
-
-          meta = { saltHex, verifier: derived.verifier, createdAt: new Date().toISOString() };
-          localStorage.setItem(VAULT_META_KEY, JSON.stringify(meta));
-          sessionKeyMaterial = derived;
-
-          state = { subscribers: [], subscriptions: [], selectedSubscriberFilter: "all" };
-          await persistState();
-          unlockSuccess("local", "Session locale");
-        } else {
-          // Vérification du mot de passe existant
-          const derived = await deriveKeyAndVerify(pwd, meta.saltHex);
-          if (derived.verifier !== meta.verifier) {
-            showAuthAlert("Mot de passe incorrect. Vérifiez votre saisie ou réinitialisez le coffre.");
-            return;
-          }
-          sessionKeyMaterial = derived;
-          const loaded = await decryptPayload(localStorage.getItem(VAULT_DATA_KEY));
-          if (loaded) {
-            state = {
-              subscribers: Array.isArray(loaded.subscribers) ? loaded.subscribers : [],
-              subscriptions: Array.isArray(loaded.subscriptions) ? loaded.subscriptions : [],
-              selectedSubscriberFilter: "all"
-            };
-          }
-          unlockSuccess("local", "Session locale");
+      let meta = getVaultMeta();
+      if (!meta) {
+        const saltBytes = window.crypto ? window.crypto.getRandomValues(new Uint8Array(16)) : Array.from({ length: 16 }, () => Math.floor(Math.random() * 256));
+        const saltHex = Array.from(saltBytes).map(b => b.toString(16).padStart(2, "0")).join("");
+        const derived = await deriveKeyAndVerify(pwd, saltHex);
+        meta = { saltHex, verifier: derived.verifier };
+        localStorage.setItem(VAULT_META_KEY, JSON.stringify(meta));
+        sessionKeyMaterial = derived;
+        state = { subscribers: [], subscriptions: [], selectedSubscriberFilter: "all" };
+        await persistState();
+        unlockSuccess();
+      } else {
+        const derived = await deriveKeyAndVerify(pwd, meta.saltHex);
+        if (derived.verifier !== meta.verifier) { showAuthAlert("Mot de passe incorrect."); return; }
+        sessionKeyMaterial = derived;
+        const loaded = await decryptPayload(localStorage.getItem(VAULT_DATA_KEY));
+        if (loaded) {
+          state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" };
         }
-      } catch (err) {
-        console.error("Auth error:", err);
-        showAuthAlert("Erreur technique lors du déverrouillage : " + (err.message || err));
-      } finally {
-        btn.disabled = false;
-        btn.classList.remove("opacity-70");
+        unlockSuccess();
       }
     }
 
     function resetLocalVault() {
-      if (!confirm("Réinitialiser le mot de passe local ? Si des données étaient enregistrées sur ce navigateur, elles seront effacées pour créer un nouveau coffre vierge.")) {
-        return;
-      }
+      if (!confirm("Réinitialiser le coffre local ?")) return;
       localStorage.removeItem(VAULT_META_KEY);
       localStorage.removeItem(VAULT_DATA_KEY);
       localStorage.removeItem(WEBAUTHN_KEY);
-      document.getElementById("local-password").value = "";
-      document.getElementById("biometric-section").classList.add("hidden");
       initAuthGate();
-      showAuthAlert("Coffre réinitialisé. Choisissez un nouveau mot de passe ci-dessous.", "success");
-    }
-
-    // --- Biométrie WebAuthn ---
-    async function registerBiometrics() {
-      if (!window.PublicKeyCredential || !sessionKeyMaterial) {
-        showToast("Biométrie non disponible sur ce navigateur", "⚠️");
-        return;
-      }
-      try {
-        const challenge = window.crypto.getRandomValues(new Uint8Array(32));
-        const userId = window.crypto.getRandomValues(new Uint8Array(16));
-        const cred = await navigator.credentials.create({
-          publicKey: {
-            challenge,
-            rp: { name: "Mes Abonnements Presse" },
-            user: { id: userId, name: "proprietaire@local", displayName: "Propriétaire" },
-            pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-            authenticatorSelection: { userVerification: "required" },
-            timeout: 60000
-          }
-        });
-        if (cred) {
-          const rawId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
-          localStorage.setItem(WEBAUTHN_KEY, JSON.stringify({
-            rawId,
-            fallbackSecret: sessionKeyMaterial.fallbackSecret
-          }));
-          showToast("Déverrouillage biométrique activé !", "👆");
-        }
-      } catch (e) {
-        showToast("Activation biométrique annulée", "⚠️");
-      }
+      showAuthAlert("Coffre réinitialisé.", "success");
     }
 
     async function unlockWithBiometrics() {
       try {
         const saved = JSON.parse(localStorage.getItem(WEBAUTHN_KEY) || "null");
         if (!saved) return;
-        const rawId = Uint8Array.from(atob(saved.rawId), c => c.charCodeAt(0));
         const assertion = await navigator.credentials.get({
-          publicKey: {
-            challenge: window.crypto.getRandomValues(new Uint8Array(32)),
-            allowCredentials: [{ id: rawId, type: "public-key" }],
-            userVerification: "required",
-            timeout: 60000
-          }
+          publicKey: { challenge: window.crypto.getRandomValues(new Uint8Array(32)), allowCredentials: [{ id: Uint8Array.from(atob(saved.rawId), c => c.charCodeAt(0)), type: "public-key" }], userVerification: "required" }
         });
         if (assertion) {
           const [pwd, saltHex] = saved.fallbackSecret.split(":");
           sessionKeyMaterial = await deriveKeyAndVerify(pwd, saltHex);
           const loaded = await decryptPayload(localStorage.getItem(VAULT_DATA_KEY));
-          if (loaded) {
-            state = {
-              subscribers: loaded.subscribers || [],
-              subscriptions: loaded.subscriptions || [],
-              selectedSubscriberFilter: "all"
-            };
-          }
-          unlockSuccess("biometric", "Déverrouillé par biométrie");
+          if (loaded) { state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" }; }
+          unlockSuccess();
         }
-      } catch {
-        showAuthAlert("Échec de l'authentification biométrique. Utilisez votre mot de passe.");
-      }
+      } catch { showAuthAlert("Échec biométrique."); }
     }
 
-    // --- Google & Apple Sign-In ---
-    function toggleSsoConfig() {
-      const body = document.getElementById("sso-config-body");
-      body.classList.toggle("hidden");
-    }
-
+    function toggleSsoConfig() { document.getElementById("sso-config-body").classList.toggle("hidden"); }
     function saveSsoConfig() {
-      const cfg = {
+      localStorage.setItem(SSO_CONFIG_KEY, JSON.stringify({
         googleClientId: document.getElementById("cfg-google-client-id").value.trim(),
         appleClientId: document.getElementById("cfg-apple-client-id").value.trim(),
         allowedEmails: document.getElementById("cfg-allowed-emails").value.trim().toLowerCase()
-      };
-      localStorage.setItem(SSO_CONFIG_KEY, JSON.stringify(cfg));
-      showAuthAlert("Configuration SSO enregistrée.", "success");
+      }));
+      showAuthAlert("Configuration enregistrée.", "success");
       initGoogleButtonIfConfigured();
     }
 
-    function parseJwtPayload(token) {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(atob(base64).split("").map(c =>
-        "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-      ).join(""));
-      return JSON.parse(jsonPayload);
-    }
-
-    function verifyAuthorizedEmailAndUnlock(email, providerLabel) {
+    function verifyAuthorizedEmailAndUnlock(email) {
       const cfg = getSsoConfig();
-      const allowedList = (cfg.allowedEmails || "")
-        .split(",")
-        .map(e => e.trim().toLowerCase())
-        .filter(Boolean);
-
-      if (allowedList.length > 0 && !allowedList.includes(email.toLowerCase())) {
-        showAuthAlert(`Accès refusé : le compte ${email} n'est pas dans la liste des emails autorisés.`);
-        return;
-      }
-
-      // Déverrouillage avec clé dérivée de l'email vérifié par Google/Apple
+      const list = (cfg.allowedEmails || "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+      if (list.length > 0 && !list.includes(email.toLowerCase())) { showAuthAlert(`Accès refusé pour ${email}`); return; }
       deriveKeyAndVerify("sso:" + email.toLowerCase(), "53534f5f53414c545f32303236").then(async derived => {
         sessionKeyMaterial = derived;
-        const raw = localStorage.getItem(VAULT_DATA_KEY);
-        if (raw) {
-          try {
-            const loaded = await decryptPayload(raw);
-            if (loaded) {
-              state = {
-                subscribers: loaded.subscribers || [],
-                subscriptions: loaded.subscriptions || [],
-                selectedSubscriberFilter: "all"
-              };
-            }
-          } catch {
-            // Coffre créé avec un autre identifiant -> initialise un espace propre pour ce compte
-            state = { subscribers: [], subscriptions: [], selectedSubscriberFilter: "all" };
-          }
-        }
-        unlockSuccess("sso", `${providerLabel} (${email})`);
+        const loaded = await decryptPayload(localStorage.getItem(VAULT_DATA_KEY));
+        if (loaded) { state = { subscribers: loaded.subscribers || [], subscriptions: loaded.subscriptions || [], selectedSubscriberFilter: "all" }; }
+        unlockSuccess();
       });
     }
 
@@ -1032,89 +793,39 @@
       const cfg = getSsoConfig();
       if (!cfg.googleClientId || !window.google || !window.google.accounts) return;
       try {
-        window.google.accounts.id.initialize({
-          client_id: cfg.googleClientId,
-          callback: (response) => {
-            const payload = parseJwtPayload(response.credential);
-            if (payload && payload.email) {
-              verifyAuthorizedEmailAndUnlock(payload.email, "Google");
-            }
-          }
-        });
+        window.google.accounts.id.initialize({ client_id: cfg.googleClientId, callback: (res) => {
+          const payload = JSON.parse(atob(res.credential.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+          if (payload && payload.email) verifyAuthorizedEmailAndUnlock(payload.email);
+        }});
         const target = document.getElementById("g_id_signin");
         target.innerHTML = "";
-        window.google.accounts.id.renderButton(target, {
-          theme: "outline",
-          size: "large",
-          width: 340,
-          text: "continue_with"
-        });
+        window.google.accounts.id.renderButton(target, { theme: "outline", size: "large", width: 320 });
         document.getElementById("google-fallback-btn").classList.add("hidden");
-      } catch (e) {
-        console.warn("Google GIS init:", e);
-      }
+      } catch (e) {}
     }
 
     function triggerGoogleSignIn() {
       const cfg = getSsoConfig();
-      if (!cfg.googleClientId) {
-        document.getElementById("sso-config-body").classList.remove("hidden");
-        showAuthAlert("Renseignez d'abord votre Google Client ID OAuth dans la configuration ci-dessous.");
-        return;
-      }
-      initGoogleButtonIfConfigured();
-      if (window.google && window.google.accounts) {
-        window.google.accounts.id.prompt();
-      } else {
-        showAuthAlert("Script Google non chargé. Vérifiez votre connexion Internet.");
-      }
+      if (!cfg.googleClientId) { document.getElementById("sso-config-body").classList.remove("hidden"); showAuthAlert("Renseignez le Google Client ID."); return; }
+      if (window.google && window.google.accounts) window.google.accounts.id.prompt();
     }
 
     async function triggerAppleSignIn() {
       const cfg = getSsoConfig();
-      if (!cfg.appleClientId) {
-        document.getElementById("sso-config-body").classList.remove("hidden");
-        showAuthAlert("Renseignez d'abord votre Apple Services ID dans la configuration ci-dessous.");
-        return;
-      }
-      if (!window.AppleID) {
-        showAuthAlert("SDK Apple non disponible.");
-        return;
-      }
+      if (!cfg.appleClientId) { document.getElementById("sso-config-body").classList.remove("hidden"); showAuthAlert("Renseignez l'Apple Services ID."); return; }
       try {
-        window.AppleID.auth.init({
-          clientId: cfg.appleClientId,
-          scope: "name email",
-          redirectURI: window.location.origin + window.location.pathname,
-          usePopup: true
-        });
+        window.AppleID.auth.init({ clientId: cfg.appleClientId, scope: "name email", redirectURI: window.location.origin + window.location.pathname, usePopup: true });
         const data = await window.AppleID.auth.signIn();
-        const idToken = data && data.authorization && data.authorization.id_token;
-        if (idToken) {
-          const payload = parseJwtPayload(idToken);
-          if (payload && payload.email) {
-            verifyAuthorizedEmailAndUnlock(payload.email, "Apple");
-          }
+        if (data && data.authorization && data.authorization.id_token) {
+          const payload = JSON.parse(atob(data.authorization.id_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+          if (payload && payload.email) verifyAuthorizedEmailAndUnlock(payload.email);
         }
-      } catch (err) {
-        showAuthAlert("Connexion Apple interrompue ou non autorisée sur ce domaine.");
-      }
+      } catch (e) { showAuthAlert("Connexion Apple annulée."); }
     }
 
-    function unlockSuccess(method, label) {
-      currentAuthMethod = method;
-      currentUserDisplay = label;
-      document.getElementById("local-password").value = "";
+    function unlockSuccess() {
       document.getElementById("auth-gate").classList.add("hidden");
       document.getElementById("app-shell").classList.remove("hidden");
-      document.getElementById("session-user-label").textContent = label;
-
-      if (method === "local" && window.PublicKeyCredential) {
-        document.getElementById("setup-biometric-btn").classList.remove("hidden");
-        document.getElementById("setup-biometric-btn").classList.add("inline-flex");
-      }
-
-      populateCatalogControls();
       renderApp();
     }
 
@@ -1126,155 +837,58 @@
       initAuthGate();
     }
 
-    // =========================================================================
-    // 3. PERSISTANCE CHIFFRÉE & EXEMPLES À LA DEMANDE
-    // =========================================================================
     async function persistState() {
       if (!sessionKeyMaterial) return;
-      const encrypted = await encryptPayload({
-        subscribers: state.subscribers,
-        subscriptions: state.subscriptions
-      });
-      localStorage.setItem(VAULT_DATA_KEY, encrypted);
+      localStorage.setItem(VAULT_DATA_KEY, await encryptPayload({ subscribers: state.subscribers, subscriptions: state.subscriptions }));
     }
 
     function offsetDateISO(monthsOffset, daysOffset = 0) {
-      const d = new Date();
-      d.setMonth(d.getMonth() + monthsOffset);
-      d.setDate(d.getDate() + daysOffset);
+      const d = new Date(); d.setMonth(d.getMonth() + monthsOffset); d.setDate(d.getDate() + daysOffset);
       return d.toISOString().split("T")[0];
     }
 
     async function loadDemoData() {
-      const s1 = { id: "sub_p1", name: "Lucas", role: "8 ans", colorIndex: 0 };
-      const s2 = { id: "sub_p2", name: "Emma", role: "5 ans", colorIndex: 3 };
-      const s3 = { id: "sub_p3", name: "Famille", role: "Parents", colorIndex: 1 };
-
+      const s1 = { id: "p1", name: "Lucas", role: "8 ans", colorIndex: 0 };
+      const s2 = { id: "p2", name: "Emma", role: "5 ans", colorIndex: 3 };
+      const s3 = { id: "p3", name: "Famille", role: "Parents", colorIndex: 1 };
       state.subscribers = [s1, s2, s3];
       state.subscriptions = [
-        {
-          id: "mag_1",
-          title: "Astrapi",
-          category: "Jeunesse",
-          frequency: "biweekly",
-          startDate: offsetDateISO(-7),
-          endDate: offsetDateISO(5),
-          totalIssues: 24,
-          price: 108,
-          subscriberIds: [s1.id],
-          autoRenew: true,
-          notes: "Réf Bayard #49201"
-        },
-        {
-          id: "mag_2",
-          title: "Pomme d'Api",
-          category: "Jeunesse",
-          frequency: "monthly",
-          startDate: offsetDateISO(-11),
-          endDate: offsetDateISO(0, 22),
-          totalIssues: 12,
-          price: 69,
-          subscriberIds: [s2.id],
-          autoRenew: false,
-          notes: "À renouveler avant la fin du mois"
-        },
-        {
-          id: "mag_3",
-          title: "Courrier International",
-          category: "Actualités",
-          frequency: "weekly",
-          startDate: offsetDateISO(-3),
-          endDate: offsetDateISO(9),
-          totalIssues: 52,
-          price: 139,
-          subscriberIds: [s3.id],
-          autoRenew: true,
-          notes: "Édition papier + numérique"
-        }
+        { id: "m1", title: "Astrapi", category: "Jeunesse", frequency: "biweekly", startDate: offsetDateISO(-6), endDate: offsetDateISO(6), totalIssues: 24, price: 108, subscriberIds: [s1.id], autoRenew: true, notes: "Réf #4920" },
+        { id: "m2", title: "Pomme d'Api", category: "Jeunesse", frequency: "monthly", startDate: offsetDateISO(-10), endDate: offsetDateISO(2), totalIssues: 12, price: 69, subscriberIds: [s2.id], autoRenew: false, notes: "" },
+        { id: "m3", title: "Courrier International", category: "Actualités", frequency: "weekly", startDate: offsetDateISO(-2), endDate: offsetDateISO(10), totalIssues: 52, price: 139, subscriberIds: [s3.id], autoRenew: true, notes: "Numérique inclus" }
       ];
-      state.selectedSubscriberFilter = "all";
       await persistState();
       renderApp();
       toggleDataMenu(true);
-      showToast("Exemples chargés dans votre coffre", "✨");
+      showToast("Exemples chargés", "✨");
     }
 
-    // =========================================================================
-    // 4. CALCULS DYNAMIQUES (DATES, NUMÉROS, STATUTS)
-    // =========================================================================
     function computeSubscriptionMetrics(sub) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
+      const today = new Date(); today.setHours(0,0,0,0);
       const start = new Date(sub.startDate + "T00:00:00");
       const end = new Date(sub.endDate + "T00:00:00");
-
+      const daysRemaining = Math.ceil((end - today) / (1000*60*60*24));
       const totalMs = Math.max(1, end - start);
       const elapsedMs = today - start;
-      const remainingMs = end - today;
+      let progressPct = Math.max(0, Math.min(100, Math.round((elapsedMs / totalMs) * 100)));
+      const totalIssues = Number(sub.totalIssues) || 12;
+      const currentIssue = today < start ? 0 : today >= end ? totalIssues : Math.min(totalIssues, Math.max(1, Math.ceil((elapsedMs / totalMs) * totalIssues)));
 
-      const daysRemaining = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
-      const totalDays = Math.max(1, Math.ceil(totalMs / (1000 * 60 * 60 * 24)));
-
-      let progressPct = Math.round((elapsedMs / totalMs) * 100);
-      progressPct = Math.max(0, Math.min(100, progressPct));
-
-      const totalIssues = Number(sub.totalIssues) || estimateTotalIssues(sub.startDate, sub.endDate, sub.frequency);
-      const currentIssue = today < start
-        ? 0
-        : today >= end
-          ? totalIssues
-          : Math.min(totalIssues, Math.max(1, Math.ceil((elapsedMs / totalMs) * totalIssues)));
-
-      let status = "active";
-      let statusLabel = "Actif";
-      let statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200";
-      let barColor = "bg-indigo-600";
-
+      let status = "active", statusLabel = "Actif", statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200", barColor = "bg-indigo-600";
       if (daysRemaining < 0) {
-        status = "expired";
-        statusLabel = "Expiré";
-        statusBadge = "bg-rose-50 text-rose-700 border-rose-200";
-        barColor = "bg-rose-500";
+        status = "expired"; statusLabel = "Expiré"; statusBadge = "bg-rose-50 text-rose-700 border-rose-200"; barColor = "bg-rose-500";
       } else if (daysRemaining <= 45) {
-        status = "expiring";
-        statusLabel = daysRemaining === 0 ? "Expire aujourd'hui" : `Expire dans ${daysRemaining} j`;
-        statusBadge = "bg-amber-50 text-amber-800 border-amber-200";
-        barColor = "bg-amber-500";
+        status = "expiring"; statusLabel = daysRemaining === 0 ? "Expire aujourd'hui" : `Expire dans ${daysRemaining} j`; statusBadge = "bg-amber-50 text-amber-800 border-amber-200"; barColor = "bg-amber-500";
       }
-
-      return {
-        daysRemaining,
-        totalDays,
-        progressPct,
-        totalIssues,
-        currentIssue,
-        status,
-        statusLabel,
-        statusBadge,
-        barColor
-      };
+      return { daysRemaining, progressPct, totalIssues, currentIssue, status, statusLabel, statusBadge, barColor };
     }
 
-    function estimateTotalIssues(startDateStr, endDateStr, frequency) {
-      if (!startDateStr || !endDateStr) return 12;
-      const start = new Date(startDateStr + "T00:00:00");
-      const end = new Date(endDateStr + "T00:00:00");
-      const days = Math.max(1, (end - start) / (1000 * 60 * 60 * 24));
-      const months = days / 30.4375;
-      const perMonth = (FREQUENCY_META[frequency] || FREQUENCY_META.monthly).perMonth;
-      return Math.max(1, Math.round(months * perMonth));
-    }
-
-    function formatDateFR(isoStr) {
-      if (!isoStr) return "—";
-      const [y, m, d] = isoStr.split("-");
+    function formatDateFR(iso) {
+      if (!iso) return "—";
+      const [y, m, d] = iso.split("-");
       return `${d}/${m}/${y}`;
     }
 
-    // =========================================================================
-    // 5. RENDU DE L'INTERFACE PRINCIPALE
-    // =========================================================================
     function renderApp() {
       renderSubscriberFilterBar();
       renderKPIs();
@@ -1283,219 +897,111 @@
     }
 
     function renderKPIs() {
-      let activeCount = 0;
-      let expiringCount = 0;
-      let monthlyIssues = 0;
-      let annualBudget = 0;
-
+      let active = 0, expiring = 0, monthly = 0, budget = 0;
       state.subscriptions.forEach(sub => {
         const m = computeSubscriptionMetrics(sub);
         if (m.status !== "expired") {
-          activeCount++;
-          const freq = FREQUENCY_META[sub.frequency] || FREQUENCY_META.monthly;
-          monthlyIssues += freq.perMonth;
-
-          const start = new Date(sub.startDate + "T00:00:00");
-          const end = new Date(sub.endDate + "T00:00:00");
-          const years = Math.max(0.25, (end - start) / (1000 * 60 * 60 * 24 * 365.25));
-          if (sub.price) {
-            annualBudget += Number(sub.price) / years;
-          }
+          active++;
+          monthly += (FREQUENCY_META[sub.frequency] || FREQUENCY_META.monthly).perMonth;
+          if (sub.price) budget += Number(sub.price);
         }
-        if (m.status === "expiring") {
-          expiringCount++;
-        }
+        if (m.status === "expiring") expiring++;
       });
-
-      document.getElementById("kpi-active").textContent = activeCount;
-      document.getElementById("kpi-total").textContent = `sur ${state.subscriptions.length} au total`;
-      document.getElementById("kpi-expiring").textContent = expiringCount;
-      document.getElementById("kpi-monthly-issues").textContent = Math.round(monthlyIssues * 10) / 10;
-      document.getElementById("kpi-budget").textContent = `${Math.round(annualBudget)} €`;
+      document.getElementById("kpi-active").textContent = active;
+      document.getElementById("kpi-total").textContent = `/ ${state.subscriptions.length}`;
+      document.getElementById("kpi-expiring").textContent = expiring;
+      document.getElementById("kpi-monthly-issues").textContent = Math.round(monthly * 10) / 10;
+      document.getElementById("kpi-budget").textContent = `${Math.round(budget)} €`;
     }
 
     function renderSubscriberFilterBar() {
       const bar = document.getElementById("subscriber-filter-bar");
       const allActive = state.selectedSubscriberFilter === "all";
-
-      let html = `
-        <button onclick="setSubscriberFilter('all')"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
-            allActive
-              ? "bg-slate-900 text-white border-slate-900"
-              : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-          }">
-          Tous (${state.subscriptions.length})
-        </button>
-      `;
-
-      state.subscribers.forEach(person => {
-        const count = state.subscriptions.filter(s => (s.subscriberIds || []).includes(person.id)).length;
-        const isSelected = state.selectedSubscriberFilter === person.id;
-        const color = SUBSCRIBER_COLORS[person.colorIndex % SUBSCRIBER_COLORS.length];
-
-        html += `
-          <button onclick="setSubscriberFilter('${person.id}')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
-              isSelected
-                ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-            }">
-            <span class="w-2 h-2 rounded-full ${isSelected ? "bg-white" : color.dot}"></span>
-            <span>${escapeHtml(person.name)}</span>
-            <span class="opacity-75">(${count})</span>
-          </button>
-        `;
+      let html = `<button onclick="setSubscriberFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${allActive ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"}">Tous (${state.subscriptions.length})</button>`;
+      
+      state.subscribers.forEach(p => {
+        const count = state.subscriptions.filter(s => (s.subscriberIds || []).includes(p.id)).length;
+        const isSel = state.selectedSubscriberFilter === p.id;
+        const col = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
+        html += `<button onclick="setSubscriberFilter('${p.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${isSel ? "bg-indigo-600 text-white border-indigo-600 shadow-xs" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}"><span class="w-2 h-2 rounded-full ${isSel ? "bg-white" : col.dot}"></span><span>${escapeHtml(p.name)}</span><span>(${count})</span></button>`;
       });
-
       bar.innerHTML = html;
     }
 
-    function setSubscriberFilter(id) {
-      state.selectedSubscriberFilter = id;
-      renderApp();
-    }
+    function setSubscriberFilter(id) { state.selectedSubscriberFilter = id; renderApp(); }
 
     function renderSubscriptionsGrid() {
       const grid = document.getElementById("subscriptions-grid");
       const empty = document.getElementById("empty-state");
-
       const query = document.getElementById("search-input").value.trim().toLowerCase();
-      const statusFilter = document.getElementById("status-filter").value;
-      const categoryFilter = document.getElementById("category-filter").value;
+      const stFilter = document.getElementById("status-filter").value;
+      const catFilter = document.getElementById("category-filter").value;
       const sortBy = document.getElementById("sort-select").value;
 
-      let list = state.subscriptions.map(sub => ({
-        sub,
-        metrics: computeSubscriptionMetrics(sub)
-      }));
+      let list = state.subscriptions.map(sub => ({ sub, metrics: computeSubscriptionMetrics(sub) }));
+      if (state.selectedSubscriberFilter !== "all") list = list.filter(i => (i.sub.subscriberIds || []).includes(state.selectedSubscriberFilter));
+      if (query) list = list.filter(i => i.sub.title.toLowerCase().includes(query) || (i.sub.notes && i.sub.notes.toLowerCase().includes(query)));
+      if (stFilter !== "all") list = list.filter(i => i.metrics.status === stFilter);
+      if (catFilter !== "all") list = list.filter(i => i.sub.category === catFilter);
 
-      // Filtres
-      if (state.selectedSubscriberFilter !== "all") {
-        list = list.filter(item => (item.sub.subscriberIds || []).includes(state.selectedSubscriberFilter));
-      }
-      if (query) {
-        list = list.filter(item =>
-          item.sub.title.toLowerCase().includes(query) ||
-          (item.sub.notes && item.sub.notes.toLowerCase().includes(query))
-        );
-      }
-      if (statusFilter !== "all") {
-        list = list.filter(item => item.metrics.status === statusFilter);
-      }
-      if (categoryFilter !== "all") {
-        list = list.filter(item => item.sub.category === categoryFilter);
-      }
-
-      // Tri
       list.sort((a, b) => {
         if (sortBy === "end-asc") return a.sub.endDate.localeCompare(b.sub.endDate);
         if (sortBy === "end-desc") return b.sub.endDate.localeCompare(a.sub.endDate);
         if (sortBy === "name-asc") return a.sub.title.localeCompare(b.sub.title, "fr");
-        if (sortBy === "start-desc") return b.sub.startDate.localeCompare(a.sub.startDate);
-        return 0;
+        return b.sub.startDate.localeCompare(a.sub.startDate);
       });
 
-      if (list.length === 0) {
-        grid.innerHTML = "";
-        empty.classList.remove("hidden");
-        return;
-      }
-
+      if (list.length === 0) { grid.innerHTML = ""; empty.classList.remove("hidden"); return; }
       empty.classList.add("hidden");
+
       grid.innerHTML = list.map(({ sub, metrics }) => {
         const freq = FREQUENCY_META[sub.frequency] || FREQUENCY_META.monthly;
-        const readers = (sub.subscriberIds || [])
-          .map(id => state.subscribers.find(p => p.id === id))
-          .filter(Boolean);
-
-        const readersHtml = readers.length
-          ? readers.map(p => {
-              const c = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
-              return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border ${c.bg} ${c.text} ${c.border}">
-                <span class="w-1.5 h-1.5 rounded-full ${c.dot}"></span>${escapeHtml(p.name)}
-              </span>`;
-            }).join("")
-          : `<span class="text-xs text-slate-400 italic">Non assigné</span>`;
+        const readers = (sub.subscriberIds || []).map(id => state.subscribers.find(p => p.id === id)).filter(Boolean);
+        const readersHtml = readers.length ? readers.map(p => {
+          const c = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
+          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border ${c.bg} ${c.text} ${c.border}"><span class="w-1.5 h-1.5 rounded-full ${c.dot}"></span>${escapeHtml(p.name)}</span>`;
+        }).join("") : `<span class="text-xs text-slate-400 italic">Non assigné</span>`;
 
         return `
-          <article class="bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between card-hover">
+          <article class="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 flex flex-col justify-between card-hover">
             <div>
-              <!-- Haut de carte : Titre & Statut -->
-              <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start justify-between gap-2">
                 <div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">${escapeHtml(sub.category || "Magazine")}</span>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">${escapeHtml(sub.category)}</span>
                     <span class="text-slate-300">•</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${freq.badgeClass}">
-                      ${freq.label}
-                    </span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold border ${freq.badgeClass}">${freq.label}</span>
                   </div>
-                  <h3 class="text-lg font-bold text-slate-900 mt-1 leading-snug">${escapeHtml(sub.title)}</h3>
+                  <h3 class="text-base sm:text-lg font-bold text-slate-900 mt-1 leading-snug">${escapeHtml(sub.title)}</h3>
                 </div>
-
-                <span class="shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${metrics.statusBadge}">
-                  ${metrics.statusLabel}
-                </span>
+                <span class="shrink-0 inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold border ${metrics.statusBadge}">${metrics.statusLabel}</span>
               </div>
 
-              <!-- Lecteurs abonnés -->
-              <div class="mt-3 flex items-center gap-1.5 flex-wrap">
-                ${readersHtml}
+              <div class="mt-2.5 flex items-center gap-1.5 flex-wrap">${readersHtml}</div>
+
+              <div class="mt-3.5 grid grid-cols-2 gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-100 text-xs">
+                <div><span class="text-slate-400 block text-[10px]">Début</span><span class="font-bold text-slate-800">${formatDateFR(sub.startDate)}</span></div>
+                <div class="text-right"><span class="text-slate-400 block text-[10px]">Fin</span><span class="font-bold text-slate-900">${formatDateFR(sub.endDate)}</span></div>
               </div>
 
-              <!-- Dates début & fin -->
-              <div class="mt-4 grid grid-cols-2 gap-2.5 bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs">
-                <div>
-                  <span class="text-slate-400 block">Début</span>
-                  <span class="font-bold text-slate-800 text-sm">${formatDateFR(sub.startDate)}</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-slate-400 block">Fin d'abonnement</span>
-                  <span class="font-bold text-slate-900 text-sm">${formatDateFR(sub.endDate)}</span>
-                </div>
-              </div>
-
-              <!-- Barre de progression des numéros -->
-              <div class="mt-4">
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="font-medium text-slate-600">
-                    Numéro estimé : <strong class="text-slate-900">${metrics.currentIssue}</strong> / ${metrics.totalIssues}
-                  </span>
+              <div class="mt-3.5">
+                <div class="flex items-center justify-between text-xs mb-1">
+                  <span class="text-slate-600">N° <strong class="text-slate-900">${metrics.currentIssue}</strong> / ${metrics.totalIssues}</span>
                   <span class="font-semibold text-slate-500">${metrics.progressPct}%</span>
                 </div>
                 <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div class="h-full rounded-full progress-bar ${metrics.barColor}" style="width: ${metrics.progressPct}%"></div>
                 </div>
               </div>
-
-              ${sub.notes ? `<p class="mt-3 text-xs text-slate-500 bg-slate-50/70 px-2.5 py-1.5 rounded-lg truncate">📝 ${escapeHtml(sub.notes)}</p>` : ""}
+              ${sub.notes ? `<p class="mt-2.5 text-xs text-slate-500 bg-slate-50 px-2.5 py-1.5 rounded-lg truncate">📝 ${escapeHtml(sub.notes)}</p>` : ""}
             </div>
 
-            <!-- Pied de carte : Actions -->
             <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2 text-xs text-slate-500">
-                ${sub.price ? `<span class="font-semibold text-slate-700">${Number(sub.price).toFixed(0)} €</span>` : ""}
-                ${sub.autoRenew ? `<span class="text-indigo-600 font-medium" title="Reconduction automatique">↻ Auto</span>` : ""}
-              </div>
-
+              <span class="text-xs font-semibold text-slate-700">${sub.price ? Number(sub.price).toFixed(0) + " €" : ""}</span>
               <div class="flex items-center gap-1">
-                <button onclick="renewSubscriptionOneYear('${sub.id}')" title="Prolonger de 1 an"
-                  class="px-2.5 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition">
-                  +1 an
-                </button>
-                <button onclick="openSubscriptionModal('${sub.id}')" title="Modifier"
-                  class="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                </button>
-                <button onclick="deleteSubscription('${sub.id}')" title="Supprimer"
-                  class="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
+                <button onclick="renewSubscriptionOneYear('${sub.id}')" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition">+1 an</button>
+                <button onclick="openSubscriptionModal('${sub.id}')" class="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition">✏️</button>
+                <button onclick="deleteSubscription('${sub.id}')" class="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">🗑️</button>
               </div>
             </div>
           </article>
@@ -1503,13 +1009,11 @@
       }).join("");
     }
 
-    // =========================================================================
-    // 6. AUTO-REMPLISSAGE & MODALE ABONNEMENT
-    // =========================================================================
     function populateCatalogControls() {
       const select = document.getElementById("catalog-preset");
       const datalist = document.getElementById("magazines-datalist");
-      if (select.options.length > 1) return;
+      select.innerHTML = '<option value="">— Choisir un magazine ou saisir ci-dessous —</option>';
+      datalist.innerHTML = "";
 
       const sorted = [...MAGAZINE_CATALOG].sort((a, b) => a.title.localeCompare(b.title, "fr"));
       sorted.forEach(item => {
@@ -1529,7 +1033,6 @@
       if (!title) return;
       const item = MAGAZINE_CATALOG.find(m => m.title.toLowerCase() === title.toLowerCase());
       if (!item) return;
-
       document.getElementById("sub-title").value = item.title;
       document.getElementById("sub-category").value = item.category;
       document.getElementById("sub-frequency").value = item.frequency;
@@ -1541,14 +1044,12 @@
       recalculateAutoFields();
     }
 
-    function onTitleInput(value) {
-      const match = MAGAZINE_CATALOG.find(m => m.title.toLowerCase() === value.trim().toLowerCase());
+    function onTitleInput(val) {
+      const match = MAGAZINE_CATALOG.find(m => m.title.toLowerCase() === val.trim().toLowerCase());
       if (match) {
         document.getElementById("sub-category").value = match.category;
         document.getElementById("sub-frequency").value = match.frequency;
-        if (match.price && !document.getElementById("sub-price").value) {
-          document.getElementById("sub-price").value = match.price;
-        }
+        if (match.price && !document.getElementById("sub-price").value) document.getElementById("sub-price").value = match.price;
         recalculateAutoFields();
       }
     }
@@ -1557,33 +1058,22 @@
       const startStr = document.getElementById("sub-start-date").value;
       const durationVal = document.getElementById("sub-duration").value;
       const frequency = document.getElementById("sub-frequency").value;
-
       if (startStr && durationVal !== "custom") {
-        const months = parseInt(durationVal, 10) || 12;
         const d = new Date(startStr + "T00:00:00");
-        d.setMonth(d.getMonth() + months);
-        const endStr = d.toISOString().split("T")[0];
-        document.getElementById("sub-end-date").value = endStr;
+        d.setMonth(d.getMonth() + parseInt(durationVal, 10));
+        document.getElementById("sub-end-date").value = d.toISOString().split("T")[0];
       }
-
-      const finalEndStr = document.getElementById("sub-end-date").value;
-      if (startStr && finalEndStr) {
-        document.getElementById("sub-total-issues").value = estimateTotalIssues(startStr, finalEndStr, frequency);
-      }
-    }
-
-    function onManualEndDate() {
-      document.getElementById("sub-duration").value = "custom";
-      const startStr = document.getElementById("sub-start-date").value;
       const endStr = document.getElementById("sub-end-date").value;
-      const frequency = document.getElementById("sub-frequency").value;
       if (startStr && endStr) {
-        document.getElementById("sub-total-issues").value = estimateTotalIssues(startStr, endStr, frequency);
+        const days = Math.max(1, (new Date(endStr) - new Date(startStr)) / (1000*60*60*24));
+        const perM = (FREQUENCY_META[frequency] || FREQUENCY_META.monthly).perMonth;
+        document.getElementById("sub-total-issues").value = Math.max(1, Math.round((days / 30.4375) * perM));
       }
     }
+
+    function onManualEndDate() { document.getElementById("sub-duration").value = "custom"; recalculateAutoFields(); }
 
     function openSubscriptionModal(editId = null) {
-      const modal = document.getElementById("subscription-modal");
       const form = document.getElementById("subscription-form");
       form.reset();
       document.getElementById("inline-new-subscriber").classList.add("hidden");
@@ -1607,82 +1097,45 @@
       } else {
         document.getElementById("sub-modal-title").textContent = "Nouvel abonnement";
         document.getElementById("sub-id").value = "";
-        const todayStr = new Date().toISOString().split("T")[0];
-        document.getElementById("sub-start-date").value = todayStr;
+        document.getElementById("sub-start-date").value = new Date().toISOString().split("T")[0];
         document.getElementById("sub-duration").value = "12";
         recalculateAutoFields();
-        modalSelectedSubscriberIds = state.subscribers.length === 1 ? [state.subscribers[0].id] : [];
+        modalSelectedSubscriberIds = state.subscribers.length > 0 ? [state.subscribers[0].id] : [];
       }
-
       renderModalSubscribersSelector();
-      modal.classList.remove("hidden");
+      document.getElementById("subscription-modal").classList.remove("hidden");
     }
 
-    function closeSubscriptionModal() {
-      document.getElementById("subscription-modal").classList.add("hidden");
-    }
+    function closeSubscriptionModal() { document.getElementById("subscription-modal").classList.add("hidden"); }
 
     function renderModalSubscribersSelector() {
       const container = document.getElementById("modal-subscribers-selector");
       if (state.subscribers.length === 0) {
-        container.innerHTML = `<span class="text-xs text-slate-400 italic">Aucune personne enregistrée. Cliquez sur "+ Ajouter une personne" à droite.</span>`;
+        container.innerHTML = `<span class="text-xs text-slate-400 italic">Aucun lecteur. Cliquez sur "+ Ajouter" ci-dessus.</span>`;
         return;
       }
-
-      container.innerHTML = state.subscribers.map(person => {
-        const selected = modalSelectedSubscriberIds.includes(person.id);
-        const c = SUBSCRIBER_COLORS[person.colorIndex % SUBSCRIBER_COLORS.length];
-        return `
-          <button type="button" onclick="toggleModalSubscriber('${person.id}')"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
-              selected
-                ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                : `${c.bg} ${c.text} ${c.border} opacity-75 hover:opacity-100`
-            }">
-            <span>${selected ? "✓" : "+"}</span>
-            <span>${escapeHtml(person.name)}</span>
-            ${person.role ? `<span class="opacity-75 text-[10px]">(${escapeHtml(person.role)})</span>` : ""}
-          </button>
-        `;
+      container.innerHTML = state.subscribers.map(p => {
+        const sel = modalSelectedSubscriberIds.includes(p.id);
+        const c = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
+        return `<button type="button" onclick="toggleModalSubscriber('${p.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${sel ? "bg-indigo-600 text-white border-indigo-600 shadow-xs" : `${c.bg} ${c.text} ${c.border} opacity-75 hover:opacity-100`}"><span class="w-3 h-3 rounded-full ${sel ? "bg-white" : c.dot}"></span><span>${escapeHtml(p.name)}</span></button>`;
       }).join("");
     }
 
     function toggleModalSubscriber(id) {
-      if (modalSelectedSubscriberIds.includes(id)) {
-        modalSelectedSubscriberIds = modalSelectedSubscriberIds.filter(x => x !== id);
-      } else {
-        modalSelectedSubscriberIds.push(id);
-      }
+      modalSelectedSubscriberIds = modalSelectedSubscriberIds.includes(id) ? modalSelectedSubscriberIds.filter(x => x !== id) : [...modalSelectedSubscriberIds, id];
       renderModalSubscribersSelector();
     }
 
-    function quickAddSubscriberInline() {
-      const box = document.getElementById("inline-new-subscriber");
-      box.classList.toggle("hidden");
-      if (!box.classList.contains("hidden")) {
-        document.getElementById("inline-sub-name").focus();
-      }
-    }
-
+    function quickAddSubscriberInline() { document.getElementById("inline-new-subscriber").classList.toggle("hidden"); }
     async function confirmInlineSubscriber() {
-      const nameInput = document.getElementById("inline-sub-name");
-      const ageInput = document.getElementById("inline-sub-age");
-      const name = nameInput.value.trim();
+      const name = document.getElementById("inline-sub-name").value.trim();
       if (!name) return;
-
-      const newPerson = {
-        id: "pers_" + Date.now(),
-        name,
-        role: ageInput.value.trim(),
-        colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length
-      };
-      state.subscribers.push(newPerson);
-      modalSelectedSubscriberIds.push(newPerson.id);
-
-      nameInput.value = "";
-      ageInput.value = "";
+      const p = { id: "pers_" + Date.now(), name, role: document.getElementById("inline-sub-age").value.trim(), colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length };
+      state.subscribers.push(p);
+      modalSelectedSubscriberIds.push(p.id);
+      document.getElementById("inline-sub-name").value = "";
+      document.getElementById("inline-sub-age").value = "";
       document.getElementById("inline-new-subscriber").classList.add("hidden");
-
       await persistState();
       renderModalSubscribersSelector();
       renderApp();
@@ -1691,218 +1144,123 @@
     async function saveSubscription(event) {
       event.preventDefault();
       const id = document.getElementById("sub-id").value;
-      const title = document.getElementById("sub-title").value.trim();
-      const category = document.getElementById("sub-category").value;
-      const frequency = document.getElementById("sub-frequency").value;
-      const price = document.getElementById("sub-price").value;
-      const startDate = document.getElementById("sub-start-date").value;
-      const endDate = document.getElementById("sub-end-date").value;
-      const totalIssues = parseInt(document.getElementById("sub-total-issues").value, 10) || 12;
-      const notes = document.getElementById("sub-notes").value.trim();
-      const autoRenew = document.getElementById("sub-auto-renew").checked;
-
-      if (!title || !startDate || !endDate) return;
-
       const payload = {
         id: id || "mag_" + Date.now(),
-        title,
-        category,
-        frequency,
-        price: price ? Number(price) : null,
-        startDate,
-        endDate,
-        totalIssues,
+        title: document.getElementById("sub-title").value.trim(),
+        category: document.getElementById("sub-category").value,
+        frequency: document.getElementById("sub-frequency").value,
+        price: document.getElementById("sub-price").value ? Number(document.getElementById("sub-price").value) : null,
+        startDate: document.getElementById("sub-start-date").value,
+        endDate: document.getElementById("sub-end-date").value,
+        totalIssues: parseInt(document.getElementById("sub-total-issues").value, 10) || 12,
         subscriberIds: [...modalSelectedSubscriberIds],
-        notes,
-        autoRenew
+        notes: document.getElementById("sub-notes").value.trim(),
+        autoRenew: document.getElementById("sub-auto-renew").checked
       };
-
       if (id) {
         const idx = state.subscriptions.findIndex(s => s.id === id);
         if (idx !== -1) state.subscriptions[idx] = payload;
-        showToast("Abonnement mis à jour", "✓");
       } else {
         state.subscriptions.unshift(payload);
-        showToast("Abonnement ajouté", "✓");
       }
-
       await persistState();
       closeSubscriptionModal();
       renderApp();
+      showToast("Enregistré avec succès");
     }
 
     async function renewSubscriptionOneYear(id) {
       const sub = state.subscriptions.find(s => s.id === id);
       if (!sub) return;
-      const end = new Date(sub.endDate + "T00:00:00");
-      end.setFullYear(end.getFullYear() + 1);
-      sub.endDate = end.toISOString().split("T")[0];
-      sub.totalIssues = estimateTotalIssues(sub.startDate, sub.endDate, sub.frequency);
+      const d = new Date(sub.endDate + "T00:00:00");
+      d.setFullYear(d.getFullYear() + 1);
+      sub.endDate = d.toISOString().split("T")[0];
       await persistState();
       renderApp();
-      showToast(`${sub.title} prolongé d'1 an`, "🎉");
+      showToast(`${sub.title} prolongé d'1 an 🎉`);
     }
 
     async function deleteSubscription(id) {
       const sub = state.subscriptions.find(s => s.id === id);
-      if (!sub) return;
-      if (!confirm(`Supprimer l'abonnement « ${sub.title} » ?`)) return;
+      if (!sub || !confirm(`Supprimer « ${sub.title} » ?`)) return;
       state.subscriptions = state.subscriptions.filter(s => s.id !== id);
       await persistState();
       renderApp();
-      showToast("Abonnement supprimé", "🗑️");
+      showToast("Abonnement supprimé");
     }
 
-    // =========================================================================
-    // 7. MODALE GESTION DES PERSONNES ABONNÉES
-    // =========================================================================
-    function openSubscribersModal() {
-      renderSubscribersModalList();
-      document.getElementById("subscribers-modal").classList.remove("hidden");
-    }
-
-    function closeSubscribersModal() {
-      document.getElementById("subscribers-modal").classList.add("hidden");
-    }
+    function openSubscribersModal() { renderSubscribersModalList(); document.getElementById("subscribers-modal").classList.remove("hidden"); }
+    function closeSubscribersModal() { document.getElementById("subscribers-modal").classList.add("hidden"); }
 
     function renderSubscribersModalList() {
       const container = document.getElementById("subscribers-list");
-      if (state.subscribers.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Aucune personne ajoutée pour le moment.</p>`;
-        return;
-      }
-
-      container.innerHTML = state.subscribers.map(person => {
-        const c = SUBSCRIBER_COLORS[person.colorIndex % SUBSCRIBER_COLORS.length];
-        const count = state.subscriptions.filter(s => (s.subscriberIds || []).includes(person.id)).length;
-        return `
-          <div class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50/60">
-            <div class="flex items-center gap-2.5">
-              <span class="w-3 h-3 rounded-full ${c.dot}"></span>
-              <div>
-                <p class="text-sm font-semibold text-slate-800">${escapeHtml(person.name)}</p>
-                <p class="text-xs text-slate-500">${person.role ? escapeHtml(person.role) + " • " : ""}${count} abonnement(s)</p>
-              </div>
-            </div>
-            <button onclick="removeSubscriber('${person.id}')" title="Supprimer"
-              class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-        `;
+      if (state.subscribers.length === 0) { container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Aucun lecteur.</p>`; return; }
+      container.innerHTML = state.subscribers.map(p => {
+        const c = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
+        return `<div class="flex items-center justify-between p-2.5 rounded-2xl border border-slate-200 bg-slate-50"><div class="flex items-center gap-2.5"><span class="w-3 h-3 rounded-full ${c.dot}"></span><span class="text-sm font-semibold text-slate-800">${escapeHtml(p.name)}</span></div><button onclick="removeSubscriber('${p.id}')" class="p-1.5 text-slate-400 hover:text-rose-600">🗑️</button></div>`;
       }).join("");
     }
 
     async function addSubscriberFromModal(event) {
       event.preventDefault();
-      const nameInput = document.getElementById("new-subscriber-name");
-      const roleInput = document.getElementById("new-subscriber-role");
-      const name = nameInput.value.trim();
+      const name = document.getElementById("new-subscriber-name").value.trim();
       if (!name) return;
-
-      state.subscribers.push({
-        id: "pers_" + Date.now(),
-        name,
-        role: roleInput.value.trim(),
-        colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length
-      });
-
-      nameInput.value = "";
-      roleInput.value = "";
+      state.subscribers.push({ id: "pers_" + Date.now(), name, role: document.getElementById("new-subscriber-role").value.trim(), colorIndex: state.subscribers.length % SUBSCRIBER_COLORS.length });
+      document.getElementById("new-subscriber-name").value = "";
+      document.getElementById("new-subscriber-role").value = "";
       await persistState();
       renderSubscribersModalList();
       renderApp();
-      showToast(`${name} ajouté(e)`, "👤");
     }
 
     async function removeSubscriber(id) {
       state.subscribers = state.subscribers.filter(p => p.id !== id);
-      state.subscriptions.forEach(s => {
-        s.subscriberIds = (s.subscriberIds || []).filter(pid => pid !== id);
-      });
-      if (state.selectedSubscriberFilter === id) {
-        state.selectedSubscriberFilter = "all";
-      }
+      state.subscriptions.forEach(s => { s.subscriberIds = (s.subscriberIds || []).filter(pid => pid !== id); });
       await persistState();
       renderSubscribersModalList();
       renderApp();
     }
 
-    // =========================================================================
-    // 8. EXPORT / IMPORT JSON & UTILITAIRES
-    // =========================================================================
-    function toggleDataMenu(forceClose = false) {
-      const menu = document.getElementById("data-menu");
-      if (forceClose) {
-        menu.classList.add("hidden");
-      } else {
-        menu.classList.toggle("hidden");
-      }
-    }
-
+    function toggleDataMenu(force = false) { document.getElementById("data-menu").classList.toggle("hidden", force); }
     function exportData() {
       toggleDataMenu(true);
-      const blob = new Blob([JSON.stringify({
-        exportedAt: new Date().toISOString(),
-        subscribers: state.subscribers,
-        subscriptions: state.subscriptions
-      }, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `abonnements-presse-${new Date().toISOString().split("T")[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast("Sauvegarde JSON téléchargée", "📥");
+      const blob = new Blob([JSON.stringify({ subscribers: state.subscribers, subscriptions: state.subscriptions }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "abonnements-presse.json"; a.click();
+      showToast("Export JSON réussi");
     }
 
-    function importData(event) {
+    function importData(e) {
       toggleDataMenu(true);
-      const file = event.target.files[0];
-      if (!file) return;
+      const f = e.target.files[0];
+      if (!f) return;
       const reader = new FileReader();
-      reader.onload = async (e) => {
+      reader.onload = async (evt) => {
         try {
-          const parsed = JSON.parse(e.target.result);
-          if (Array.isArray(parsed.subscriptions)) {
-            state.subscribers = Array.isArray(parsed.subscribers) ? parsed.subscribers : [];
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.subscriptions) {
+            state.subscribers = parsed.subscribers || [];
             state.subscriptions = parsed.subscriptions;
             await persistState();
             renderApp();
-            showToast("Données importées et chiffrées", "📤");
-          } else {
-            alert("Format de fichier JSON invalide.");
+            showToast("Import réussi");
           }
-        } catch {
-          alert("Impossible de lire ce fichier JSON.");
-        }
+        } catch { alert("Fichiers JSON invalide."); }
       };
-      reader.readAsText(file);
-      event.target.value = "";
+      reader.readAsText(f);
+      e.target.value = "";
     }
 
-    function showToast(msg, icon = "✓") {
-      const toast = document.getElementById("toast");
+    function showToast(msg) {
+      const t = document.getElementById("toast");
       document.getElementById("toast-message").textContent = msg;
-      document.getElementById("toast-icon").textContent = icon;
-      toast.classList.remove("translate-y-20", "opacity-0");
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => {
-        toast.classList.add("translate-y-20", "opacity-0");
-      }, 2800);
+      t.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => t.classList.add("translate-y-20", "opacity-0"), 2800);
     }
 
     function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // Fermeture du menu export au clic extérieur
     document.addEventListener("click", (e) => {
       const menu = document.getElementById("data-menu");
       if (menu && !menu.classList.contains("hidden") && !e.target.closest("#data-menu") && !e.target.closest("button[title*='Sauvegarder']")) {
@@ -1910,10 +1268,7 @@
       }
     });
 
-    // Initialisation au chargement
-    document.addEventListener("DOMContentLoaded", () => {
-      initAuthGate();
-    });
+    document.addEventListener("DOMContentLoaded", initAuthGate);
   </script>
 </body>
 </html>
