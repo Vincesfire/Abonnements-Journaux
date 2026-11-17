@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KiosqueFamille — Suivi des Abonnements Magazines & Journaux</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons pour des icônes nettes et modernes -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Zone de notification Toast dynamique (remplace alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- En-tête de l'application -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md shadow-indigo-200">
+                    <i class="ph-bold ph-books text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-slate-900">Kiosque<span class="text-indigo-600">Famille</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">Gestion intelligente des abonnements presse & jeunesse</p>
+                </div>
+            </div>
+
+            <!-- Boutons d'actions globales -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <button onclick="openSubscribersModal()" class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    <i class="ph-bold ph-users text-indigo-600 text-base"></i>
+                    <span>Abonnés (<span id="header-subscriber-count">0</span>)</span>
+                </button>
+
+                <div class="relative inline-block">
+                    <button onclick="toggleDataMenu()" id="data-menu-btn" class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" title="Sauvegarder ou restaurer">
+                        <i class="ph-bold ph-database text-slate-600 text-base"></i>
+                        <span class="hidden sm:inline">Données</span>
+                        <i class="ph-bold ph-caret-down text-xs"></i>
+                    </button>
+                    <!-- Menu déroulant Export / Import -->
+                    <div id="data-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-40">
+                        <button onclick="exportDataJSON()" class="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5">
+                            <i class="ph-bold ph-download-simple text-indigo-600"></i> Exporter en JSON
+                        </button>
+                        <label class="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 cursor-pointer">
+                            <i class="ph-bold ph-upload-simple text-indigo-600"></i> Importer un JSON
+                            <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="importDataJSON(event)">
+                        </label>
+                        <div class="border-t border-slate-100 my-1"></div>
+                        <button onclick="confirmClearDemoData()" id="btn-clear-demo" class="w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-2.5">
+                            <i class="ph-bold ph-trash"></i> Effacer tout / Vider
+                        </button>
+                    </div>
+                </div>
+
+                <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all active:scale-95">
+                    <i class="ph-bold ph-plus-circle text-lg"></i>
+                    <span>Nouvel abonnement</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+
+        <!-- Bannière d'information si données d'exemple actives -->
+        <div id="demo-banner" class="hidden bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                    <i class="ph-fill ph-sparkle text-xl"></i>
+                </span>
+                <p class="text-sm text-indigo-950">
+                    <strong>Mode démonstration :</strong> Des exemples d'abonnements ont été pré-chargés pour illustrer le suivi. Vous pouvez les modifier librement ou repartir de zéro.
+                </p>
+            </div>
+            <button onclick="clearDemoDataOnly()" class="px-3.5 py-2 rounded-xl bg-white text-indigo-700 border border-indigo-200 text-xs font-bold hover:bg-indigo-600 hover:text-white transition-colors shrink-0">
+                Effacer les exemples
+            </button>
+        </div>
+
+        <!-- Cartes de synthèse dynamique (KPIs) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total actifs -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <i class="ph-duotone ph-check-circle text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Abonnements actifs</p>
+                    <p id="stat-active" class="text-2xl font-extrabold text-slate-900 mt-0.5">0</p>
+                </div>
+            </div>
+
+            <!-- Expire bientôt (< 30 jours) -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                    <i class="ph-duotone ph-warning-circle text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">À renouveler (&lt; 30j)</p>
+                    <p id="stat-expiring" class="text-2xl font-extrabold text-slate-900 mt-0.5">0</p>
+                </div>
+            </div>
+
+            <!-- Prochain numéro attendu -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                    <i class="ph-duotone ph-mailbox text-2xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Prochain numéro attendu</p>
+                    <p id="stat-next-issue-title" class="text-sm font-bold text-slate-900 truncate mt-0.5">—</p>
+                    <p id="stat-next-issue-date" class="text-xs text-indigo-600 font-medium">Aucun actif</p>
+                </div>
+            </div>
+
+            <!-- Numéros restants cumulés -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                    <i class="ph-duotone ph-stack text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Numéros à recevoir</p>
+                    <p id="stat-remaining-issues" class="text-2xl font-extrabold text-slate-900 mt-0.5">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Barre de filtres et recherche -->
+        <section class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <!-- Filtre rapide par abonné (pastilles) -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0" id="subscriber-filter-pills">
+                    <!-- Généré dynamiquement en JS -->
+                </div>
+
+                <!-- Recherche et sélecteurs -->
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <div class="relative flex-1 sm:flex-initial sm:w-56">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="filter-search" oninput="renderSubscriptions()" placeholder="Rechercher un titre..." class="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                    </div>
+
+                    <select id="filter-status" onchange="renderSubscriptions()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 font-medium">
+                        <option value="all">Tous les statuts</option>
+                        <option value="active">Actifs uniquement</option>
+                        <option value="expiring">Expire bientôt (&lt; 30j)</option>
+                        <option value="expired">Expirés</option>
+                    </select>
+
+                    <select id="filter-frequency" onchange="renderSubscriptions()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 font-medium">
+                        <option value="all">Toutes fréquences</option>
+                        <option value="quotidien">Quotidien</option>
+                        <option value="hebdomadaire">Hebdomadaire</option>
+                        <option value="bimensuel">Bimensuel</option>
+                        <option value="mensuel">Mensuel</option>
+                        <option value="bimestriel">Bimestriel</option>
+                        <option value="trimestriel">Trimestriel</option>
+                    </select>
+
+                    <select id="sort-by" onchange="renderSubscriptions()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 font-medium">
+                        <option value="endDateAsc">Fin la plus proche</option>
+                        <option value="endDateDesc">Fin la plus lointaine</option>
+                        <option value="titleAsc">Ordre alphabétique</option>
+                        <option value="recent">Ajout récent</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grille des abonnements -->
+        <section id="subscriptions-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <!-- Les cartes d'abonnement sont injectées ici par JS -->
+        </section>
+
+        <!-- État vide si aucun résultat -->
+        <div id="empty-state" class="hidden bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center max-w-lg mx-auto my-8">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+                <i class="ph-duotone ph-newspaper-clipping text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">Aucun abonnement trouvé</h3>
+            <p class="text-sm text-slate-500 mt-1 mb-6">Ajoutez un nouveau magazine ou journal, ou modifiez vos filtres de recherche.</p>
+            <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition">
+                <i class="ph-bold ph-plus"></i> Ajouter un abonnement
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Pied de page discret -->
+    <footer class="border-t border-slate-200 bg-white py-4 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+            <p>KiosqueFamille — Vos données sont sauvegardées automatiquement dans votre navigateur.</p>
+            <p id="current-date-display" class="font-medium text-slate-500"></p>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- MODALE 1 : AJOUT / MODIFICATION D'ABONNEMENT (AVEC AUTO-REMPLISSAGE)   -->
+    <!-- ===================================================================== -->
+    <div id="subscription-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in">
+            <!-- En-tête modale -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+                        <i class="ph-bold ph-book-open-text text-lg"></i>
+                    </span>
+                    <h2 id="sub-modal-title" class="text-lg font-bold text-slate-900">Nouvel abonnement</h2>
+                </div>
+                <button onclick="closeSubscriptionModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Formulaire -->
+            <form id="subscription-form" onsubmit="saveSubscription(event)" class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
+                <input type="hidden" id="sub-id">
+
+                <!-- Sélection rapide dans le catalogue pré-rempli -->
+                <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 space-y-3">
+                    <label for="catalog-select" class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-indigo-800">
+                        <span class="flex items-center gap-1.5"><i class="ph-fill ph-magic-wand text-indigo-600 text-base"></i> Sélection rapide (Auto-remplissage)</span>
+                        <span class="text-[11px] font-normal normal-case text-indigo-600">Pré-remplit fréquence, catégorie & durée</span>
+                    </label>
+                    <select id="catalog-select" onchange="handleCatalogSelection()" class="w-full px-3.5 py-2.5 text-sm bg-white border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800 shadow-sm">
+                        <option value="">-- Choisir un magazine ou journal populaire --</option>
+                        <!-- Options regroupées par catégorie injectées en JS -->
+                        <option value="custom">✏️ Autre titre personnalisé...</option>
+                    </select>
+                </div>
+
+                <!-- Titre & Catégorie -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label for="sub-title" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Titre de la publication *</label>
+                        <input type="text" id="sub-title" list="catalog-datalist" oninput="handleTitleInputAutoMatch()" required placeholder="Ex: Astrapi, Le Monde, Wapiti..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white font-semibold text-slate-900">
+                        <datalist id="catalog-datalist"></datalist>
+                    </div>
+
+                    <div>
+                        <label for="sub-category" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Catégorie</label>
+                        <select id="sub-category" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white font-medium text-slate-800">
+                            <option value="Jeunesse">🧸 Jeunesse / Enfants</option>
+                            <option value="Presse">📰 Presse / Actualités</option>
+                            <option value="Culture & Sciences">🔬 Culture & Sciences</option>
+                            <option value="Sport & Loisirs">⚽ Sport & Loisirs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fréquence & Durée standard -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="sub-frequency" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Fréquence de parution *</label>
+                        <select id="sub-frequency" onchange="recalculateEndDateAndIssues()" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white font-medium text-slate-800">
+                            <option value="quotidien">Quotidien (env. 26 numéros / mois)</option>
+                            <option value="hebdomadaire">Hebdomadaire (1 fois / semaine)</option>
+                            <option value="bimensuel">Bimensuel (2 fois / mois)</option>
+                            <option value="mensuel" selected>Mensuel (1 fois / mois)</option>
+                            <option value="bimestriel">Bimestriel (tous les 2 mois)</option>
+                            <option value="trimestriel">Trimestriel (tous les 3 mois)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="sub-duration" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Durée de l'abonnement</label>
+                        <select id="sub-duration" onchange="recalculateEndDateAndIssues()" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white font-medium text-slate-800">
+                            <option value="3">3 mois</option>
+                            <option value="6">6 mois</option>
+                            <option value="12" selected>1 an (12 mois)</option>
+                            <option value="24">2 ans (24 mois)</option>
+                            <option value="custom">Date de fin personnalisée</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dates de début, fin et estimation des numéros -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    <div>
+                        <label for="sub-start-date" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Date de début *</label>
+                        <input type="date" id="sub-start-date" onchange="recalculateEndDateAndIssues()" required class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800">
+                    </div>
+
+                    <div>
+                        <label for="sub-end-date" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Date de fin *</label>
+                        <input type="date" id="sub-end-date" onchange="handleManualEndDateChange()" required class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800">
+                    </div>
+
+                    <div>
+                        <label for="sub-total-issues" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nb total numéros</label>
+                        <div class="relative">
+                            <input type="number" id="sub-total-issues" min="1" max="1000" required class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-indigo-700">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-slate-400">n°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attribution aux abonnés (Personnes) -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Personne(s) abonnée(s)</label>
+                        <button type="button" onclick="quickAddSubscriberInline()" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                            <i class="ph-bold ph-user-plus"></i> Ajouter une personne
+                        </button>
+                    </div>
+                    <!-- Champ rapide inline caché par défaut -->
+                    <div id="inline-subscriber-creator" class="hidden mb-3 p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 flex flex-wrap items-center gap-2">
+                        <input type="text" id="inline-sub-name" placeholder="Prénom (ex: Léo, Papa...)" class="flex-1 min-w-[140px] px-3 py-1.5 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <div class="flex items-center gap-1" id="inline-color-picker"></div>
+                        <button type="button" onclick="saveInlineSubscriber()" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700">Ajouter</button>
+                    </div>
+
+                    <div id="sub-subscribers-checkboxes" class="flex flex-wrap gap-2">
+                        <!-- Cases à cocher stylisées injectées par JS -->
+                    </div>
+                </div>
+
+                <!-- Note / Référence abonné (optionnel) -->
+                <div>
+                    <label for="sub-notes" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">N° d'abonné ou note (optionnel)</label>
+                    <input type="text" id="sub-notes" placeholder="Ex: Réf. client #482910 — Renouvellement automatique désactivé" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-slate-700">
+                </div>
+
+                <!-- Boutons validation -->
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeSubscriptionModal()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Annuler</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 transition active:scale-95">
+                        Enregistrer l'abonnement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODALE 2 : GESTION DES ABONNÉS / MEMBRES DE LA FAMILLE                -->
+    <!-- ===================================================================== -->
+    <div id="subscribers-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+                        <i class="ph-bold ph-users text-lg"></i>
+                    </span>
+                    <h2 class="text-lg font-bold text-slate-900">Gérer les abonnés</h2>
+                </div>
+                <button onclick="closeSubscribersModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <!-- Formulaire d'ajout d'une personne -->
+                <form onsubmit="addSubscriberFromModal(event)" class="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Ajouter un lecteur / membre</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-subscriber-name" required placeholder="Prénom (ex: Emma, Lucas...)" class="flex-1 px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition">Ajouter</button>
+                    </div>
+                    <div class="flex items-center gap-2 pt-1">
+                        <span class="text-xs text-slate-500 font-medium">Couleur :</span>
+                        <div id="modal-color-picker" class="flex items-center gap-1.5"></div>
+                    </div>
+                </form>
+
+                <!-- Liste des abonnés existants -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Lecteurs enregistrés</h3>
+                    <ul id="subscribers-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                        <!-- Injecté en JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODALE 3 : CONFIRMATION PERSONNALISÉE (REMPLACE confirm())            -->
+    <!-- ===================================================================== -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+                <i class="ph-bold ph-warning text-2xl"></i>
+            </div>
+            <div>
+                <h3 id="confirm-title" class="text-lg font-bold text-slate-900">Confirmer l'action</h3>
+                <p id="confirm-message" class="text-sm text-slate-500 mt-1">Êtes-vous sûr de vouloir continuer ?</p>
+            </div>
+            <div class="flex items-center justify-center gap-3 pt-2">
+                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Annuler</button>
+                <button id="confirm-action-btn" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 transition">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- LOGIQUE JAVASCRIPT COMPLÈTE                                           -->
+    <!-- ===================================================================== -->
+    <script>
+        /**
+         * 1. CATALOGUE PRÉ-REMPLI DE MAGAZINES & JOURNAUX FRANÇAIS
+         * Permet l'auto-complétion et le remplissage automatique de la fréquence,
+         * de la catégorie et de la durée standard.
+         */
+        const MAGAZINE_CATALOG = [
+            // Jeunesse (Éveil & Primaire)
+            { title: "Popi", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "1-3 ans" },
+            { title: "Pomme d'Api", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "3-7 ans" },
+            { title: "Toupie", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "3-6 ans" },
+            { title: "Les Belles Histoires", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "4-7 ans" },
+            { title: "Youpi", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "5-8 ans" },
+            { title: "Toboggan", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "5-8 ans" },
+            { title: "J'aime lire", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "7-10 ans" },
+            { title: "Astrapi", category: "Jeunesse", frequency: "bimensuel", durationMonths: 12, age: "7-11 ans" },
+            { title: "Wapiti", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "7-12 ans" },
+            { title: "Images Doc", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "8-12 ans" },
+            { title: "Le Journal de Mickey", category: "Jeunesse", frequency: "hebdomadaire", durationMonths: 12, age: "7-14 ans" },
+            { title: "Mickey Parade Géant", category: "Jeunesse", frequency: "bimestriel", durationMonths: 12, age: "7-14 ans" },
+            { title: "Picsou Magazine", category: "Jeunesse", frequency: "bimestriel", durationMonths: 12, age: "8-14 ans" },
+            { title: "Le Petit Quotidien", category: "Jeunesse", frequency: "quotidien", durationMonths: 12, age: "6-10 ans" },
+
+            // Jeunesse (Collège / Ado)
+            { title: "Okapi", category: "Jeunesse", frequency: "bimensuel", durationMonths: 12, age: "10-15 ans" },
+            { title: "Science & Vie Junior", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "11-17 ans" },
+            { title: "Géo Ado", category: "Jeunesse", frequency: "mensuel", durationMonths: 12, age: "10-15 ans" },
+            { title: "Mon Quotidien", category: "Jeunesse", frequency: "quotidien", durationMonths: 12, age: "10-14 ans" },
+            { title: "L'Actu", category: "Jeunesse", frequency: "quotidien", durationMonths: 12, age: "13-18 ans" },
+            { title: "Phosphore", category: "Jeunesse", frequency: "bimensuel", durationMonths: 12, age: "14-18 ans" },
+
+            // Presse & Actualités
+            { title: "Le Monde", category: "Presse", frequency: "quotidien", durationMonths: 12 },
+            { title: "Le Figaro", category: "Presse", frequency: "quotidien", durationMonths: 12 },
+            { title: "Libération", category: "Presse", frequency: "quotidien", durationMonths: 12 },
+            { title: "Courrier International", category: "Presse", frequency: "hebdomadaire", durationMonths: 12 },
+            { title: "Le Canard Enchaîné", category: "Presse", frequency: "hebdomadaire", durationMonths: 12 },
+            { title: "L'Obs", category: "Presse", frequency: "hebdomadaire", durationMonths: 12 },
+            { title: "Le Point", category: "Presse", frequency: "hebdomadaire", durationMonths: 12 },
+            { title: "L'Express", category: "Presse", frequency: "hebdomadaire", durationMonths: 12 },
+            { title: "Télérama", category: "Presse", frequency: "hebdomadaire", durationMonths: 12 },
+            { title: "Society", category: "Presse", frequency: "bimensuel", durationMonths: 12 },
+
+            // Culture, Sciences & Sport
+            { title: "Science & Vie", category: "Culture & Sciences", frequency: "mensuel", durationMonths: 12 },
+            { title: "Sciences et Avenir", category: "Culture & Sciences", frequency: "mensuel", durationMonths: 12 },
+            { title: "Géo", category: "Culture & Sciences", frequency: "mensuel", durationMonths: 12 },
+            { title: "National Geographic", category: "Culture & Sciences", frequency: "mensuel", durationMonths: 12 },
+            { title: "60 Millions de Consommateurs", category: "Culture & Sciences", frequency: "mensuel", durationMonths: 12 },
+            { title: "UFC-Que Choisir", category: "Culture & Sciences", frequency: "mensuel", durationMonths: 12 },
+            { title: "L'Équipe", category: "Sport & Loisirs", frequency: "quotidien", durationMonths: 12 },
+            { title: "So Foot", category: "Sport & Loisirs", frequency: "mensuel", durationMonths: 12 }
+        ];
+
+        /**
+         * Configuration des fréquences (libellés, jours moyens entre 2 numéros, numéros/an)
+         */
+        const FREQUENCY_CONFIG = {
+            quotidien:    { label: "Quotidien",    daysInterval: 1.16, perYear: 312, badgeClass: "bg-sky-50 text-sky-700 border-sky-200" },
+            hebdomadaire: { label: "Hebdomadaire", daysInterval: 7,    perYear: 52,  badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+            bimensuel:    { label: "Bimensuel",    daysInterval: 15.2, perYear: 24,  badgeClass: "bg-violet-50 text-violet-700 border-violet-200" },
+            mensuel:      { label: "Mensuel",      daysInterval: 30.4, perYear: 12,  badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+            bimestriel:   { label: "Bimestriel",   daysInterval: 60.8, perYear: 6,   badgeClass: "bg-amber-50 text-amber-700 border-amber-200" },
+            trimestriel:  { label: "Trimestriel",  daysInterval: 91.2, perYear: 4,   badgeClass: "bg-rose-50 text-rose-700 border-rose-200" }
+        };
+
+        /**
+         * Palette de couleurs pour les pastilles des abonnés
+         */
+        const SUBSCRIBER_COLORS = [
+            { name: "Indigo", bg: "bg-indigo-500", light: "bg-indigo-100 text-indigo-800 border-indigo-200" },
+            { name: "Émeraude", bg: "bg-emerald-500", light: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+            { name: "Ambre", bg: "bg-amber-500", light: "bg-amber-100 text-amber-800 border-amber-200" },
+            { name: "Rose", bg: "bg-rose-500", light: "bg-rose-100 text-rose-800 border-rose-200" },
+            { name: "Violet", bg: "bg-violet-500", light: "bg-violet-100 text-violet-800 border-violet-200" },
+            { name: "Cyan", bg: "bg-cyan-500", light: "bg-cyan-100 text-cyan-800 border-cyan-200" }
+        ];
+
+        // Clés localStorage
+        const STORAGE_KEYS = {
+            SUBSCRIPTIONS: "kiosquefamille_subscriptions_v1",
+            SUBSCRIBERS: "kiosquefamille_subscribers_v1",
+            IS_DEMO: "kiosquefamille_is_demo_v1"
+        };
+
+        // État global de l'application
+        let state = {
+            subscriptions: [],
+            subscribers: [],
+            selectedSubscriberFilter: "all",
+            isDemo: false,
+            selectedModalColorIndex: 0,
+            selectedInlineColorIndex: 1
+        };
+
+        /**
+         * 2. INITIALISATION AU CHARGEMENT DE LA PAGE
+         */
+        document.addEventListener("DOMContentLoaded", () => {
+            populateCatalogUI();
+            loadFromStorage();
+            updateCurrentDateDisplay();
+            renderAll();
+
+            // Fermer le menu données si clic à l'extérieur
+            document.addEventListener("click", (e) => {
+                const menu = document.getElementById("data-menu");
+                const btn = document.getElementById("data-menu-btn");
+                if (menu && !menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.add("hidden");
+                }
+            });
+        });
+
+        /**
+         * Charge les données depuis localStorage ou génère des exemples réalistes au 1er lancement
+         */
+        function loadFromStorage() {
+            const rawSubs = localStorage.getItem(STORAGE_KEYS.SUBSCRIPTIONS);
+            const rawPeople = localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS);
+
+            if (rawSubs !== null && rawPeople !== null) {
+                try {
+                    state.subscriptions = JSON.parse(rawSubs);
+                    state.subscribers = JSON.parse(rawPeople);
+                    state.isDemo = localStorage.getItem(STORAGE_KEYS.IS_DEMO) === "true";
+                } catch (e) {
+                    console.error("Erreur lecture localStorage:", e);
+                    seedDemoData();
+                }
+            } else {
+                seedDemoData();
+            }
+        }
+
+        /**
+         * Sauvegarde automatique dans localStorage
+         */
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEYS.SUBSCRIPTIONS, JSON.stringify(state.subscriptions));
+            localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(state.subscribers));
+            localStorage.setItem(STORAGE_KEYS.IS_DEMO, state.isDemo ? "true" : "false");
+        }
+
+        /**
+         * Génère 3 abonnements d'exemple basés sur la date d'aujourd'hui pour que l'interface soit parlante
+         */
+        function seedDemoData() {
+            const today = new Date();
+
+            const sub1Start = addMonthsToDate(today, -5);
+            const sub1End = addMonthsToDate(sub1Start, 12);
+
+            const sub2Start = addMonthsToDate(today, -11);
+            const sub2End = addDaysToDate(today, 14); // Expire dans 14 jours (< 30j -> orange)
+
+            const sub3Start = addMonthsToDate(today, -2);
+            const sub3End = addMonthsToDate(sub3Start, 12);
+
+            state.subscribers = [
+                { id: "p1", name: "Léo (8 ans)", colorIndex: 1 },
+                { id: "p2", name: "Chloé (5 ans)", colorIndex: 3 },
+                { id: "p3", name: "Parents", colorIndex: 0 }
+            ];
+
+            state.subscriptions = [
+                {
+                    id: "sub_demo_1",
+                    title: "Astrapi",
+                    category: "Jeunesse",
+                    frequency: "bimensuel",
+                    startDate: formatDateISO(sub1Start),
+                    endDate: formatDateISO(sub1End),
+                    totalIssues: 24,
+                    subscriberIds: ["p1"],
+                    notes: "N° abonné Bayard : 8941203"
+                },
+                {
+                    id: "sub_demo_2",
+                    title: "Pomme d'Api",
+                    category: "Jeunesse",
+                    frequency: "mensuel",
+                    startDate: formatDateISO(sub2Start),
+                    endDate: formatDateISO(sub2End),
+                    totalIssues: 12,
+                    subscriberIds: ["p2"],
+                    notes: "Pensez à renouveler avant la fin du mois"
+                },
+                {
+                    id: "sub_demo_3",
+                    title: "Courrier International",
+                    category: "Presse",
+                    frequency: "hebdomadaire",
+                    startDate: formatDateISO(sub3Start),
+                    endDate: formatDateISO(sub3End),
+                    totalIssues: 52,
+                    subscriberIds: ["p3"],
+                    notes: "Édition papier + numérique"
+                }
+            ];
+
+            state.isDemo = true;
+            saveToStorage();
+        }
+
+        /**
+         * Efface uniquement les exemples de démonstration
+         */
+        function clearDemoDataOnly() {
+            state.subscriptions = [];
+            state.isDemo = false;
+            state.selectedSubscriberFilter = "all";
+            saveToStorage();
+            renderAll();
+            showToast("Exemples effacés. Vous pouvez ajouter vos propres abonnements !", "info");
+        }
+
+        /**
+         * Confirmation pour vider toutes les données
+         */
+        function confirmClearDemoData() {
+            document.getElementById("data-menu").classList.add("hidden");
+            openConfirmModal(
+                "Tout effacer ?",
+                "Cette action supprimera tous vos abonnements enregistrés dans ce navigateur.",
+                () => {
+                    state.subscriptions = [];
+                    state.isDemo = false;
+                    state.selectedSubscriberFilter = "all";
+                    saveToStorage();
+                    renderAll();
+                    showToast("Tous les abonnements ont été supprimés.", "info");
+                }
+            );
+        }
+
+        /**
+         * 3. REMPLISSAGE DU CATALOGUE & LOGIQUE D'AUTO-COMPLÉTION
+         */
+        function populateCatalogUI() {
+            const select = document.getElementById("catalog-select");
+            const datalist = document.getElementById("catalog-datalist");
+
+            // Regrouper par catégorie
+            const categories = {};
+            MAGAZINE_CATALOG.forEach((item, index) => {
+                if (!categories[item.category]) categories[item.category] = [];
+                categories[item.category].push({ ...item, index });
+
+                // Ajouter au datalist pour l'auto-complétion au clavier
+                const optDatalist = document.createElement("option");
+                optDatalist.value = item.title;
+                datalist.appendChild(optDatalist);
+            });
+
+            // Insérer les optgroup avant l'option "custom"
+            const customOpt = select.querySelector('option[value="custom"]');
+            Object.keys(categories).forEach(cat => {
+                const group = document.createElement("optgroup");
+                group.label = cat;
+                categories[cat].forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.index;
+                    const ageInfo = item.age ? ` (${item.age})` : "";
+                    const freqLabel = FREQUENCY_CONFIG[item.frequency]?.label || item.frequency;
+                    option.textContent = `${item.title}${ageInfo} — ${freqLabel}`;
+                    group.appendChild(option);
+                });
+                select.insertBefore(group, customOpt);
+            });
+        }
+
+        /**
+         * Quand l'utilisateur choisit un magazine dans la liste déroulante
+         */
+        function handleCatalogSelection() {
+            const val = document.getElementById("catalog-select").value;
+            const titleInput = document.getElementById("sub-title");
+
+            if (val === "custom") {
+                titleInput.value = "";
+                titleInput.focus();
+                return;
+            }
+            if (val === "") return;
+
+            const item = MAGAZINE_CATALOG[parseInt(val, 10)];
+            if (item) {
+                applyCatalogItemToForm(item);
+            }
+        }
+
+        /**
+         * Quand l'utilisateur tape un titre au clavier et qu'il correspond au catalogue
+         */
+        function handleTitleInputAutoMatch() {
+            const typed = document.getElementById("sub-title").value.trim().toLowerCase();
+            if (!typed) return;
+
+            const matchIndex = MAGAZINE_CATALOG.findIndex(m => m.title.toLowerCase() === typed);
+            if (matchIndex !== -1) {
+                document.getElementById("catalog-select").value = matchIndex;
+                applyCatalogItemToForm(MAGAZINE_CATALOG[matchIndex], false);
+            }
+        }
+
+        /**
+         * Applique les métadonnées d'un magazine du catalogue au formulaire
+         */
+        function applyCatalogItemToForm(item, overwriteTitle = true) {
+            if (overwriteTitle) {
+                document.getElementById("sub-title").value = item.title;
+            }
+            document.getElementById("sub-category").value = item.category;
+            document.getElementById("sub-frequency").value = item.frequency;
+            document.getElementById("sub-duration").value = String(item.durationMonths || 12);
+
+            recalculateEndDateAndIssues();
+        }
+
+        /**
+         * Calcule dynamiquement la date de fin et le nombre total de numéros
+         */
+        function recalculateEndDateAndIssues() {
+            const startDateStr = document.getElementById("sub-start-date").value;
+            const durationVal = document.getElementById("sub-duration").value;
+            const frequency = document.getElementById("sub-frequency").value;
+            const endDateInput = document.getElementById("sub-end-date");
+            const totalIssuesInput = document.getElementById("sub-total-issues");
+
+            if (!startDateStr) return;
+
+            const startDate = new Date(startDateStr + "T00:00:00");
+            let endDate;
+
+            if (durationVal !== "custom") {
+                const months = parseInt(durationVal, 10);
+                endDate = addMonthsToDate(startDate, months);
+                endDateInput.value = formatDateISO(endDate);
+            } else if (endDateInput.value) {
+                endDate = new Date(endDateInput.value + "T00:00:00");
+            } else {
+                return;
+            }
+
+            // Estimation du nombre de numéros sur la période
+            const diffDays = Math.max(1, Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)));
+            const freqInfo = FREQUENCY_CONFIG[frequency] || FREQUENCY_CONFIG.mensuel;
+            const estimatedIssues = Math.max(1, Math.round((diffDays / 365.25) * freqInfo.perYear));
+            totalIssuesInput.value = estimatedIssues;
+        }
+
+        /**
+         * Si l'utilisateur modifie manuellement la date de fin
+         */
+        function handleManualEndDateChange() {
+            document.getElementById("sub-duration").value = "custom";
+            recalculateEndDateAndIssues();
+        }
+
+        /**
+         * 4. CALCULS DYNAMIQUES TEMPS RÉEL (PROGRESSION, STATUT, NUMÉROS, PROCHAIN NUMÉRO)
+         */
+        function computeSubscriptionMetrics(sub) {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const start = new Date(sub.startDate + "T00:00:00");
+            const end = new Date(sub.endDate + "T00:00:00");
+
+            const totalDurationMs = Math.max(1, end - start);
+            const elapsedMs = now - start;
+            const remainingMs = end - now;
+
+            const daysRemaining = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+            const totalDays = Math.max(1, Math.ceil(totalDurationMs / (1000 * 60 * 60 * 24)));
+
+            // Pourcentage écoulé (borné entre 0 et 100)
+            let progressPercent = Math.round((elapsedMs / totalDurationMs) * 100);
+            progressPercent = Math.max(0, Math.min(100, progressPercent));
+
+            // Détermination du statut
+            let status = "active"; // active | expiring | expired
+            if (daysRemaining < 0) {
+                status = "expired";
+            } else if (daysRemaining <= 30) {
+                status = "expiring";
+            }
+
+            // Estimation des numéros reçus vs restants
+            const totalIssues = parseInt(sub.totalIssues, 10) || 12;
+            let receivedIssues = 0;
+            let remainingIssues = totalIssues;
+
+            if (now >= end) {
+                receivedIssues = totalIssues;
+                remainingIssues = 0;
+            } else if (now > start) {
+                const ratio = elapsedMs / totalDurationMs;
+                receivedIssues = Math.min(totalIssues, Math.floor(ratio * totalIssues));
+                remainingIssues = Math.max(0, totalIssues - receivedIssues);
+            }
+
+            // Estimation de la date du prochain numéro (si actif)
+            let nextIssueDate = null;
+            if (status !== "expired") {
+                const freqInfo = FREQUENCY_CONFIG[sub.frequency] || FREQUENCY_CONFIG.mensuel;
+                if (now <= start) {
+                    nextIssueDate = new Date(start);
+                } else {
+                    const daysSinceStart = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
+                    const issuesPassed = Math.floor(daysSinceStart / freqInfo.daysInterval);
+                    const nextOffsetDays = Math.ceil((issuesPassed + 1) * freqInfo.daysInterval);
+                    const candidate = addDaysToDate(start, nextOffsetDays);
+                    if (candidate <= end) {
+                        nextIssueDate = candidate;
+                    }
+                }
+            }
+
+            return {
+                status,
+                daysRemaining,
+                totalDays,
+                progressPercent,
+                totalIssues,
+                receivedIssues,
+                remainingIssues,
+                nextIssueDate
+            };
+        }
+
+        /**
+         * 5. RENDU GLOBAL DE L'INTERFACE
+         */
+        function renderAll() {
+            // Bannière démo
+            const demoBanner = document.getElementById("demo-banner");
+            if (state.isDemo && state.subscriptions.length > 0) {
+                demoBanner.classList.remove("hidden");
+            } else {
+                demoBanner.classList.add("hidden");
+            }
+
+            document.getElementById("header-subscriber-count").textContent = state.subscribers.length;
+
+            renderSubscriberFilterPills();
+            renderDashboardStats();
+            renderSubscriptions();
+        }
+
+        /**
+         * Rendu des cartes KPI en haut du tableau de bord
+         */
+        function renderDashboardStats() {
+            let activeCount = 0;
+            let expiringCount = 0;
+            let totalRemainingIssues = 0;
+            let earliestNextIssue = null;
+
+            state.subscriptions.forEach(sub => {
+                const metrics = computeSubscriptionMetrics(sub);
+                if (metrics.status !== "expired") {
+                    activeCount++;
+                    totalRemainingIssues += metrics.remainingIssues;
+                }
+                if (metrics.status === "expiring") {
+                    expiringCount++;
+                }
+                if (metrics.nextIssueDate) {
+                    if (!earliestNextIssue || metrics.nextIssueDate < earliestNextIssue.date) {
+                        earliestNextIssue = {
+                            title: sub.title,
+                            date: metrics.nextIssueDate
+                        };
+                    }
+                }
+            });
+
+            document.getElementById("stat-active").textContent = activeCount;
+            document.getElementById("stat-expiring").textContent = expiringCount;
+            document.getElementById("stat-remaining-issues").textContent = totalRemainingIssues;
+
+            const nextTitleEl = document.getElementById("stat-next-issue-title");
+            const nextDateEl = document.getElementById("stat-next-issue-date");
+            if (earliestNextIssue) {
+                nextTitleEl.textContent = earliestNextIssue.title;
+                nextDateEl.textContent = formatRelativeDateFR(earliestNextIssue.date);
+            } else {
+                nextTitleEl.textContent = "Aucun prévu";
+                nextDateEl.textContent = "—";
+            }
+        }
+
+        /**
+         * Rendu des pastilles de filtre rapide par abonné
+         */
+        function renderSubscriberFilterPills() {
+            const container = document.getElementById("subscriber-filter-pills");
+            container.innerHTML = "";
+
+            const allBtn = document.createElement("button");
+            const isAll = state.selectedSubscriberFilter === "all";
+            allBtn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                isAll
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`;
+            allBtn.textContent = `Tous (${state.subscriptions.length})`;
+            allBtn.onclick = () => {
+                state.selectedSubscriberFilter = "all";
+                renderSubscriberFilterPills();
+                renderSubscriptions();
+            };
+            container.appendChild(allBtn);
+
+            state.subscribers.forEach(person => {
+                const count = state.subscriptions.filter(s => (s.subscriberIds || []).includes(person.id)).length;
+                const color = SUBSCRIBER_COLORS[person.colorIndex % SUBSCRIBER_COLORS.length];
+                const isSelected = state.selectedSubscriberFilter === person.id;
+
+                const btn = document.createElement("button");
+                btn.className = `inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                    isSelected
+                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                }`;
+                btn.innerHTML = `
+                    <span class="w-2.5 h-2.5 rounded-full ${color.bg}"></span>
+                    <span>${escapeHTML(person.name)}</span>
+                    <span class="opacity-60">(${count})</span>
+                `;
+                btn.onclick = () => {
+                    state.selectedSubscriberFilter = person.id;
+                    renderSubscriberFilterPills();
+                    renderSubscriptions();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        /**
+         * Rendu de la grille d'abonnements filtrée et triée
+         */
+        function renderSubscriptions() {
+            const grid = document.getElementById("subscriptions-grid");
+            const emptyState = document.getElementById("empty-state");
+
+            const searchQuery = document.getElementById("filter-search").value.trim().toLowerCase();
+            const statusFilter = document.getElementById("filter-status").value;
+            const freqFilter = document.getElementById("filter-frequency").value;
+            const sortBy = document.getElementById("sort-by").value;
+
+            // Enrichir avec les métriques calculées
+            let items = state.subscriptions.map(sub => ({
+                ...sub,
+                metrics: computeSubscriptionMetrics(sub)
+            }));
+
+            // Filtrage
+            items = items.filter(item => {
+                if (searchQuery && !item.title.toLowerCase().includes(searchQuery) && !(item.notes || "").toLowerCase().includes(searchQuery)) {
+                    return false;
+                }
+                if (statusFilter !== "all" && item.metrics.status !== statusFilter) {
+                    return false;
+                }
+                if (freqFilter !== "all" && item.frequency !== freqFilter) {
+                    return false;
+                }
+                if (state.selectedSubscriberFilter !== "all") {
+                    if (!(item.subscriberIds || []).includes(state.selectedSubscriberFilter)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            // Tri
+            items.sort((a, b) => {
+                if (sortBy === "endDateAsc") return new Date(a.endDate) - new Date(b.endDate);
+                if (sortBy === "endDateDesc") return new Date(b.endDate) - new Date(a.endDate);
+                if (sortBy === "titleAsc") return a.title.localeCompare(b.title, "fr");
+                return 0; // recent (ordre du tableau)
+            });
+
+            grid.innerHTML = "";
+
+            if (items.length === 0) {
+                grid.classList.add("hidden");
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            grid.classList.remove("hidden");
+            emptyState.classList.add("hidden");
+
+            items.forEach(item => {
+                grid.appendChild(createSubscriptionCard(item));
+            });
+        }
+
+        /**
+         * Construit le DOM d'une carte d'abonnement moderne
+         */
+        function createSubscriptionCard(sub) {
+            const { metrics } = sub;
+            const freqInfo = FREQUENCY_CONFIG[sub.frequency] || FREQUENCY_CONFIG.mensuel;
+
+            // Styles visuels selon le statut
+            let statusBadge = "";
+            let progressBarColor = "bg-emerald-500";
+            let cardBorderClass = "border-slate-200/90";
+
+            if (metrics.status === "active") {
+                statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Actif · ${metrics.daysRemaining}j restants
+                </span>`;
+                progressBarColor = "bg-emerald-500";
+            } else if (metrics.status === "expiring") {
+                statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
+                    <i class="ph-fill ph-warning"></i> Expire dans ${metrics.daysRemaining}j
+                </span>`;
+                progressBarColor = "bg-amber-500";
+                cardBorderClass = "border-amber-300 ring-1 ring-amber-200/60";
+            } else {
+                const daysAgo = Math.abs(metrics.daysRemaining);
+                statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                    <i class="ph-fill ph-x-circle"></i> Expiré (il y a ${daysAgo}j)
+                </span>`;
+                progressBarColor = "bg-rose-500";
+                cardBorderClass = "border-rose-200 bg-rose-50/10";
+            }
+
+            // Badges des personnes abonnées
+            const assignedPeople = (sub.subscriberIds || [])
+                .map(id => state.subscribers.find(p => p.id === id))
+                .filter(Boolean);
+
+            let subscribersHTML = "";
+            if (assignedPeople.length > 0) {
+                subscribersHTML = assignedPeople.map(p => {
+                    const color = SUBSCRIBER_COLORS[p.colorIndex % SUBSCRIBER_COLORS.length];
+                    return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${color.light}">
+                        <span class="w-2 h-2 rounded-full ${color.bg}"></span>
+                        ${escapeHTML(p.name)}
+                    </span>`;
+                }).join("");
+            } else {
+                subscribersHTML = `<span class="text-xs text-slate-400 italic">Aucun abonné assigné</span>`;
+            }
+
+            const card = document.createElement("article");
+            card.className = `bg-white rounded-3xl p-5 border ${cardBorderClass} shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4`;
+
+            card.innerHTML = `
+                <div class="space-y-3.5">
+                    <!-- Ligne supérieure : Catégorie + Statut -->
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">${escapeHTML(sub.category || "Presse")}</span>
+                        ${statusBadge}
+                    </div>
+
+                    <!-- Titre & Badge fréquence -->
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <h3 class="text-lg font-extrabold text-slate-900 leading-snug">${escapeHTML(sub.title)}</h3>
+                            <span class="shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold border ${freqInfo.badgeClass}">
+                                ${freqInfo.label}
+                            </span>
+                        </div>
+                        ${sub.notes ? `<p class="text-xs text-slate-500 mt-1 line-clamp-1" title="${escapeHTML(sub.notes)}">${escapeHTML(sub.notes)}</p>` : ""}
+                    </div>
+
+                    <!-- Personnes abonnées -->
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        ${subscribersHTML}
+                    </div>
+
+                    <!-- Dates Début / Fin & Barre de progression -->
+                    <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-100 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[11px]">Début</span>
+                                <span class="font-bold text-slate-700">${formatDateFR(sub.startDate)}</span>
+                            </div>
+                            <i class="ph-bold ph-arrow-right text-slate-300"></i>
+                            <div class="text-right">
+                                <span class="text-slate-400 block text-[11px]">Fin d'abonnement</span>
+                                <span class="font-bold ${metrics.status === 'expired' ? 'text-rose-600' : 'text-slate-900'}">${formatDateFR(sub.endDate)}</span>
+                            </div>
+                        </div>
+
+                        <!-- Barre visuelle -->
+                        <div class="w-full h-2.5 bg-slate-200/80 rounded-full overflow-hidden">
+                            <div class="h-full ${progressBarColor} rounded-full transition-all duration-500" style="width: ${metrics.progressPercent}%"></div>
+                        </div>
+
+                        <!-- Compteur de numéros estimés -->
+                        <div class="flex items-center justify-between text-[11px] font-medium text-slate-500 pt-0.5">
+                            <span>Progression : <strong class="text-slate-700">${metrics.progressPercent}%</strong></span>
+                            <span>Numéros : <strong class="text-indigo-600">${metrics.receivedIssues} reçus</strong> / ${metrics.totalIssues} (${metrics.remainingIssues} restants)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pied de carte : Actions rapides -->
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <button onclick="renewSubscriptionOneYear('${sub.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-600 hover:text-white transition-colors" title="Prolonger la date de fin de 1 an">
+                        <i class="ph-bold ph-arrows-clockwise"></i> Renouveler +1 an
+                    </button>
+
+                    <div class="flex items-center gap-1">
+                        <button onclick="openSubscriptionModal('${sub.id}')" class="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors" title="Modifier">
+                            <i class="ph-bold ph-pencil-simple text-base"></i>
+                        </button>
+                        <button onclick="deleteSubscription('${sub.id}')" class="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Supprimer">
+                            <i class="ph-bold ph-trash text-base"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        /**
+         * 6. GESTION DE LA MODALE ABONNEMENT (CRUD)
+         */
+        function openSubscriptionModal(editId = null) {
+            const modal = document.getElementById("subscription-modal");
+            const form = document.getElementById("subscription-form");
+            const modalTitle = document.getElementById("sub-modal-title");
+
+            form.reset();
+            document.getElementById("inline-subscriber-creator").classList.add("hidden");
+
+            if (editId) {
+                const sub = state.subscriptions.find(s => s.id === editId);
+                if (!sub) return;
+
+                modalTitle.textContent = "Modifier l'abonnement";
+                document.getElementById("sub-id").value = sub.id;
+                document.getElementById("sub-title").value = sub.title;
+                document.getElementById("sub-category").value = sub.category || "Jeunesse";
+                document.getElementById("sub-frequency").value = sub.frequency || "mensuel";
+                document.getElementById("sub-duration").value = "custom";
+                document.getElementById("sub-start-date").value = sub.startDate;
+                document.getElementById("sub-end-date").value = sub.endDate;
+                document.getElementById("sub-total-issues").value = sub.totalIssues || 12;
+                document.getElementById("sub-notes").value = sub.notes || "";
+
+                renderModalSubscriberCheckboxes(sub.subscriberIds || []);
+            } else {
+                modalTitle.textContent = "Nouvel abonnement";
+                document.getElementById("sub-id").value = "";
+                document.getElementById("catalog-select").value = "";
+                document.getElementById("sub-start-date").value = formatDateISO(new Date());
+                document.getElementById("sub-duration").value = "12";
+                recalculateEndDateAndIssues();
+
+                // Pré-sélectionner le 1er abonné s'il n'y en a qu'un
+                const defaultSelected = state.subscribers.length === 1 ? [state.subscribers[0].id] : [];
+                renderModalSubscriberCheckboxes(defaultSelected);
+            }
+
+            modal.classList.remove("hidden");
+        }
+
+        function closeSubscriptionModal() {
+            document.getElementById("subscription-modal").classList.add("hidden");
+        }
+
+        /**
+         * Génère les cases à cocher des abonnés dans le formulaire d'abonnement
+         */
+        function renderModalSubscriberCheckboxes(selectedIds = []) {
+            const container = document.getElementById("sub-subscribers-checkboxes");
+            container.innerHTML = "";
+
+            if (state.subscribers.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">Aucun lecteur enregistré. Cliquez sur "Ajouter une personne" ci-dessus.</p>`;
+                return;
+            }
+
+            state.subscribers.forEach(person => {
+                const color = SUBSCRIBER_COLORS[person.colorIndex % SUBSCRIBER_COLORS.length];
+                const isChecked = selectedIds.includes(person.id);
+
+                const label = document.createElement("label");
+                label.className = "cursor-pointer select-none";
+                label.innerHTML = `
+                    <input type="checkbox" name="sub-person" value="${person.id}" ${isChecked ? "checked" : ""} class="peer sr-only">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 peer-checked:text-indigo-800 transition-all">
+                        <span class="w-2.5 h-2.5 rounded-full ${color.bg}"></span>
+                        ${escapeHTML(person.name)}
+                    </span>
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        /**
+         * Ajout rapide d'une personne directement depuis le formulaire d'abonnement
+         */
+        function quickAddSubscriberInline() {
+            const box = document.getElementById("inline-subscriber-creator");
+            box.classList.toggle("hidden");
+            if (!box.classList.contains("hidden")) {
+                renderColorPicker("inline-color-picker", state.selectedInlineColorIndex, (idx) => {
+                    state.selectedInlineColorIndex = idx;
+                });
+                document.getElementById("inline-sub-name").focus();
+            }
+        }
+
+        function saveInlineSubscriber() {
+            const input = document.getElementById("inline-sub-name");
+            const name = input.value.trim();
+            if (!name) return;
+
+            const newPerson = {
+                id: "person_" + Date.now(),
+                name,
+                colorIndex: state.selectedInlineColorIndex
+            };
+            state.subscribers.push(newPerson);
+            saveToStorage();
+
+            // Récupérer ceux déjà cochés + cocher le nouveau
+            const currentlyChecked = Array.from(document.querySelectorAll('input[name="sub-person"]:checked')).map(el => el.value);
+            currentlyChecked.push(newPerson.id);
+
+            input.value = "";
+            document.getElementById("inline-subscriber-creator").classList.add("hidden");
+            renderModalSubscriberCheckboxes(currentlyChecked);
+            renderAll();
+            showToast(`${name} ajouté aux abonnés !`, "success");
+        }
+
+        /**
+         * Enregistrement (Création ou Mise à jour) d'un abonnement
+         */
+        function saveSubscription(event) {
+            event.preventDefault();
+
+            const id = document.getElementById("sub-id").value;
+            const title = document.getElementById("sub-title").value.trim();
+            const category = document.getElementById("sub-category").value;
+            const frequency = document.getElementById("sub-frequency").value;
+            const startDate = document.getElementById("sub-start-date").value;
+            const endDate = document.getElementById("sub-end-date").value;
+            const totalIssues = parseInt(document.getElementById("sub-total-issues").value, 10) || 12;
+            const notes = document.getElementById("sub-notes").value.trim();
+
+            if (new Date(endDate) < new Date(startDate)) {
+                showToast("La date de fin doit être postérieure à la date de début.", "error");
+                return;
+            }
+
+            const subscriberIds = Array.from(document.querySelectorAll('input[name="sub-person"]:checked')).map(el => el.value);
+
+            const payload = {
+                id: id || "sub_" + Date.now(),
+                title,
+                category,
+                frequency,
+                startDate,
+                endDate,
+                totalIssues,
+                subscriberIds,
+                notes
+            };
+
+            if (id) {
+                const idx = state.subscriptions.findIndex(s => s.id === id);
+                if (idx !== -1) state.subscriptions[idx] = payload;
+                showToast(`Abonnement « ${title} » mis à jour.`, "success");
+            } else {
+                state.subscriptions.unshift(payload);
+                showToast(`Abonnement « ${title} » ajouté !`, "success");
+            }
+
+            saveToStorage();
+            closeSubscriptionModal();
+            renderAll();
+        }
+
+        /**
+         * Renouvellement rapide en 1 clic (+1 an)
+         */
+        function renewSubscriptionOneYear(id) {
+            const sub = state.subscriptions.find(s => s.id === id);
+            if (!sub) return;
+
+            const currentEnd = new Date(sub.endDate + "T00:00:00");
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            // Si déjà expiré depuis longtemps, on repart d'aujourd'hui, sinon on prolonge depuis la date de fin actuelle
+            const baseDate = currentEnd < now ? now : currentEnd;
+            const newEnd = addMonthsToDate(baseDate, 12);
+
+            const freqInfo = FREQUENCY_CONFIG[sub.frequency] || FREQUENCY_CONFIG.mensuel;
+            sub.endDate = formatDateISO(newEnd);
+            sub.totalIssues = (parseInt(sub.totalIssues, 10) || 0) + freqInfo.perYear;
+
+            saveToStorage();
+            renderAll();
+            showToast(`« ${sub.title} » renouvelé jusqu'au ${formatDateFR(sub.endDate)} !`, "success");
+        }
+
+        /**
+         * Suppression d'un abonnement avec confirmation
+         */
+        function deleteSubscription(id) {
+            const sub = state.subscriptions.find(s => s.id === id);
+            if (!sub) return;
+
+            openConfirmModal(
+                "Supprimer cet abonnement ?",
+                `Voulez-vous vraiment retirer « ${sub.title} » de votre suivi ?`,
+                () => {
+                    state.subscriptions = state.subscriptions.filter(s => s.id !== id);
+                    saveToStorage();
+                    renderAll();
+                    showToast(`« ${sub.title} » supprimé.`, "info");
+                }
+            );
+        }
+
+        /**
+         * 7. GESTION DE LA MODALE DES ABONNÉS (MEMBRES DE LA FAMILLE)
+         */
+        function openSubscribersModal() {
+            renderColorPicker("modal-color-picker", state.selectedModalColorIndex, (idx) => {
+                state.selectedModalColorIndex = idx;
+            });
+            renderSubscribersManagerList();
+            document.getElementById("subscribers-modal").classList.remove("hidden");
+        }
+
+        function closeSubscribersModal() {
+            document.getElementById("subscribers-modal").classList.add("hidden");
+        }
+
+        function addSubscriberFromModal(event) {
+            event.preventDefault();
+            const input = document.getElementById("new-subscriber-name");
+            const name = input.value.trim();
+            if (!name) return;
+
+            state.subscribers.push({
+                id: "person_" + Date.now(),
+                name,
+                colorIndex: state.selectedModalColorIndex
+            });
+
+            // Passer automatiquement à la couleur suivante pour le prochain ajout
+            state.selectedModalColorIndex = (state.selectedModalColorIndex + 1) % SUBSCRIBER_COLORS.length;
+            input.value = "";
+
+            saveToStorage();
+            renderColorPicker("modal-color-picker", state.selectedModalColorIndex, (idx) => {
+                state.selectedModalColorIndex = idx;
+            });
+            renderSubscribersManagerList();
+            renderAll();
+            showToast(`${name} ajouté à la liste des abonnés.`, "success");
+        }
+
+        function removeSubscriber(personId) {
+            const person = state.subscribers.find(p => p.id === personId);
+            if (!person) return;
+
+            state.subscribers = state.subscribers.filter(p => p.id !== personId);
+            // Retirer l'ID de tous les abonnements associés
+            state.subscriptions.forEach(sub => {
+                if (sub.subscriberIds) {
+                    sub.subscriberIds = sub.subscriberIds.filter(id => id !== personId);
+                }
+            });
+            if (state.selectedSubscriberFilter === personId) {
+                state.selectedSubscriberFilter = "all";
+            }
+
+            saveToStorage();
+            renderSubscribersManagerList();
+            renderAll();
+            showToast(`${person.name} retiré.`, "info");
+        }
+
+        function renderSubscribersManagerList() {
+            const list = document.getElementById("subscribers-list");
+            list.innerHTML = "";
+
+            if (state.subscribers.length === 0) {
+                list.innerHTML = `<li class="text-xs text-slate-400 italic py-3 text-center">Aucun lecteur enregistré pour le moment.</li>`;
+                return;
+            }
+
+            state.subscribers.forEach(person => {
+                const color = SUBSCRIBER_COLORS[person.colorIndex % SUBSCRIBER_COLORS.length];
+                const subCount = state.subscriptions.filter(s => (s.subscriberIds || []).includes(person.id)).length;
+
+                const li = document.createElement("li");
+                li.className = "flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/70";
+                li.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-3.5 h-3.5 rounded-full ${color.bg}"></span>
+                        <span class="text-sm font-bold text-slate-800">${escapeHTML(person.name)}</span>
+                        <span class="text-xs text-slate-400">(${subCount} abo.)</span>
+                    </div>
+                    <button onclick="removeSubscriber('${person.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Supprimer ce lecteur">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function renderColorPicker(containerId, activeIndex, onSelect) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            SUBSCRIBER_COLORS.forEach((c, idx) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = `w-6 h-6 rounded-full ${c.bg} transition-transform ${idx === activeIndex ? "ring-2 ring-offset-2 ring-slate-800 scale-110" : "opacity-75 hover:opacity-100"}`;
+                btn.title = c.name;
+                btn.onclick = () => {
+                    onSelect(idx);
+                    renderColorPicker(containerId, idx, onSelect);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        /**
+         * 8. EXPORT / IMPORT JSON POUR SAUVEGARDE LOCALE
+         */
+        function toggleDataMenu() {
+            document.getElementById("data-menu").classList.toggle("hidden");
+        }
+
+        function exportDataJSON() {
+            document.getElementById("data-menu").classList.add("hidden");
+            const dataToExport = {
+                app: "KiosqueFamille",
+                exportedAt: new Date().toISOString(),
+                subscribers: state.subscribers,
+                subscriptions: state.subscriptions
+            };
+            const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `abonnements_kiosque_${formatDateISO(new Date())}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Sauvegarde JSON téléchargée !", "success");
+        }
+
+        function importDataJSON(event) {
+            document.getElementById("data-menu").classList.add("hidden");
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (!Array.isArray(parsed.subscriptions) || !Array.isArray(parsed.subscribers)) {
+                        throw new Error("Format de fichier invalide.");
+                    }
+                    state.subscriptions = parsed.subscriptions;
+                    state.subscribers = parsed.subscribers;
+                    state.isDemo = false;
+                    state.selectedSubscriberFilter = "all";
+                    saveToStorage();
+                    renderAll();
+                    showToast(`${state.subscriptions.length} abonnement(s) importé(s) avec succès !`, "success");
+                } catch (err) {
+                    showToast("Impossible de lire ce fichier JSON.", "error");
+                }
+                event.target.value = "";
+            };
+            reader.readAsText(file);
+        }
+
+        /**
+         * 9. MODALE DE CONFIRMATION & NOTIFICATIONS TOAST
+         */
+        let pendingConfirmCallback = null;
+
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById("confirm-title").textContent = title;
+            document.getElementById("confirm-message").textContent = message;
+            pendingConfirmCallback = onConfirm;
+
+            const btn = document.getElementById("confirm-action-btn");
+            btn.onclick = () => {
+                if (pendingConfirmCallback) pendingConfirmCallback();
+                closeConfirmModal();
+            };
+
+            document.getElementById("confirm-modal").classList.remove("hidden");
+        }
+
+        function closeConfirmModal() {
+            document.getElementById("confirm-modal").classList.add("hidden");
+            pendingConfirmCallback = null;
+        }
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+
+            const styles = {
+                success: "bg-slate-900 text-white border-slate-800",
+                error: "bg-rose-600 text-white border-rose-700",
+                info: "bg-indigo-600 text-white border-indigo-700"
+            };
+            const icons = {
+                success: "ph-check-circle text-emerald-400",
+                error: "ph-warning-circle text-white",
+                info: "ph-info text-indigo-200"
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border text-sm font-semibold transition-all duration-300 translate-y-2 opacity-0 ${styles[type] || styles.success}`;
+            toast.innerHTML = `<i class="ph-fill ${icons[type]} text-lg"></i><span>${escapeHTML(message)}</span>`;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            });
+
+            setTimeout(() => {
+                toast.classList.add("translate-y-2", "opacity-0");
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        /**
+         * 10. UTILITAIRES DE DATES & FORMATAGE
+         */
+        function formatDateISO(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const d = String(date.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatDateFR(isoDateStr) {
+            if (!isoDateStr) return "—";
+            const [y, m, d] = isoDateStr.split("-");
+            const date = new Date(Number(y), Number(m) - 1, Number(d));
+            return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+        }
+
+        function formatRelativeDateFR(dateObj) {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const target = new Date(dateObj);
+            target.setHours(0, 0, 0, 0);
+
+            const diffDays = Math.round((target - now) / (1000 * 60 * 60 * 24));
+            const formatted = target.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+
+            if (diffDays <= 0) return `Aujourd'hui (${formatted})`;
+            if (diffDays === 1) return `Demain (${formatted})`;
+            return `Dans ${diffDays} jours (${formatted})`;
+        }
+
+        function addMonthsToDate(date, months) {
+            const result = new Date(date);
+            const targetMonth = result.getMonth() + months;
+            result.setMonth(targetMonth);
+            return result;
+        }
+
+        function addDaysToDate(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function updateCurrentDateDisplay() {
+            const now = new Date();
+            document.getElementById("current-date-display").textContent =
+                "Aujourd'hui : " + now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        }
+
+        function escapeHTML(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
